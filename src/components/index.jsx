@@ -1,0 +1,9 @@
+export { default as Login } from './Login/Login';
+export { default as Page } from './UI/Page/Page';
+export { default as Users } from './Users/Users'
+export { default as ManageUsers } from './ManageUsers/ManageUsers'
+export { default as Inventories } from './Inventories/Inventories'
+export { default as ManageInventories } from './ManageInventories/ManageInventories'
+export { default as SolidarityEvents } from './SolidarityEvents/SolidarityEvents'
+export { default as ManageSolidarityEvents } from './ManageSolidarityEvents/ManageSolidarityEvents'
+export { default as ManageDonations } from './ManageDonations/ManageDonations'

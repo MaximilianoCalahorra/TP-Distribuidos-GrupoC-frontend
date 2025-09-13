@@ -1,34 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Login, ManageUsers, Page, Users, Inventories, ManageInventories, SolidarityEvents, ManageSolidarityEvents, ManageDonations } from './components';
+const USERS_BASE_PATH = "/users";
+const INVENTORIES_BASE_PATH = "/inventories";
+const SOLIDARITY_EVENTS_BASE_PATH = "/solidarityEvents";
+const DONATIONS_BASE_PATH = "/donations";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Router>
+      <Page>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path={`${USERS_BASE_PATH}`} element={<Users />} />
+          <Route path={`${USERS_BASE_PATH}/newUser`} element={<ManageUsers action={"addUser"} />} />
+          <Route path={`${USERS_BASE_PATH}/modifyUser`} element={<ManageUsers action={"modifyUser"} />} />
+          <Route path={`${INVENTORIES_BASE_PATH}`} element={<Inventories />} />
+          <Route path={`${INVENTORIES_BASE_PATH}/newInventory`} element={<ManageInventories action={"addInventory"} />} />
+          <Route path={`${INVENTORIES_BASE_PATH}/modifyInventory`} element={<ManageInventories action={"modifyInventory"} />} />
+          <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}`} element={<SolidarityEvents />} />
+          <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}/newSolidarityEvent`} element={<ManageSolidarityEvents action={"addSolidarityEvent"} />} />
+          <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}/modifySolidarityEvent`} element={<ManageSolidarityEvents action={"modifySolidarityEvent"} />} />
+          <Route path={`${DONATIONS_BASE_PATH}/newDonation`} element={<ManageDonations />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Page>
+    </Router>
   )
 }
 
