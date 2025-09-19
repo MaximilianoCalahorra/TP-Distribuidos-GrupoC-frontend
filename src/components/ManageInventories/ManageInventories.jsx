@@ -4,11 +4,43 @@ import ClassIcon from '@mui/icons-material/Class';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
 import { MenuItem, Card, Button, InputAdornment } from '@mui/material'
-import { Roles } from '../../constants/Roles'
 import PropTypes from "prop-types";
+import { useState } from 'react';
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styles from './styles.module.css'
+import InventarioService from '../../services/InventarioService';
+import { Categorias } from '../../constants/Categorias'
 
 export default function ManageInventories({action}) {
+  const [categoria, setCategoria] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [cantidad, setCantidad] = useState(0);
+  const navigate = useNavigate();
+
+  const { id } = useParams(); //Obtener el id enviado a través de la ruta.
+
+  //Manejador del envío del formulario:
+  const handleSubmit = async() => {
+    try {
+      const payload = {
+        categoria,
+        descripcion,
+        cantidad,
+      };
+
+      if (action == 'addInventory') {
+        await InventarioService.crearInventario(payload); //Agregar un inventario.
+      } else {
+        await InventarioService.modificarInventario(id, payload); //Modificar un inventario.
+      }
+
+      navigate("/inventories"); //Redirigir a la página de inventarios.
+    } catch (error) {
+      console.error("Error al guardar inventario:", error.response?.data || error.message);
+    }
+  }
+
   return (
     <div className={styles.container}>
       <Card elevation={5} sx={{display:"flex", flexDirection:"column", padding:"20px", gap:"30px"}}>
@@ -22,7 +54,8 @@ export default function ManageInventories({action}) {
             select
             label="Categoría"
             size='small'
-            onChange={()=>{}}
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
             slotProps={{
                 input: {
                 startAdornment: (
@@ -33,8 +66,10 @@ export default function ManageInventories({action}) {
                 },
             }}
             >
-            {Roles.map((rol, i)=> (
-                <MenuItem key={i} onClick={()=> {}}>{rol}</MenuItem>
+            {Categorias.map((categoria, i)=> (
+                <MenuItem key={i} value={categoria}>
+                  {categoria}
+                </MenuItem>
             ))}
             </TextField>
         )}
@@ -42,7 +77,7 @@ export default function ManageInventories({action}) {
           id=""
           label="Descripción"
           size='small'
-          onChange={()=>{}}
+          onChange={(e)=>{setDescripcion(e.target.value)}}
           slotProps={{
             input: {
               startAdornment: (
@@ -58,7 +93,7 @@ export default function ManageInventories({action}) {
           label="Cantidad"
           type='number'
           size='small'
-          onChange={()=>{}}
+          onChange={(e)=>{setCantidad(Number(e.target.value))}}
           slotProps={{
             input: {
               startAdornment: (
@@ -69,11 +104,15 @@ export default function ManageInventories({action}) {
             },
           }}
         />
-        {action == "addInventory" ? (
-          <Button variant="contained" color="primary" startIcon={<FileUploadIcon />} sx={{fontWeight:"bold"}}>Cargar inventario</Button>
-        ) : (
-          <Button variant="contained" color="primary" startIcon={<FileUploadIcon />} sx={{fontWeight:"bold"}}>Modificar inventario</Button>
-        )}
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<FileUploadIcon />}
+          sx={{ fontWeight: "bold" }}
+          onClick={handleSubmit}
+        >
+          {action === "addInventory" ? "Cargar inventario" : "Modificar inventario"}
+        </Button>
       </Card>
     </div>
   )
