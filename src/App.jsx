@@ -16,7 +16,7 @@ function App() {
           <Route path={`${USERS_BASE_PATH}/modifyUser`} element={<ManageUsers action={"modifyUser"} />} />
           <Route path={`${INVENTORIES_BASE_PATH}`} element={<Inventories />} />
           <Route path={`${INVENTORIES_BASE_PATH}/newInventory`} element={<ManageInventories action={"addInventory"} />} />
-          <Route path={`${INVENTORIES_BASE_PATH}/modifyInventory`} element={<ManageInventories action={"modifyInventory"} />} />
+          <Route path={`${INVENTORIES_BASE_PATH}/modifyInventory/:id`} element={<ManageInventories action={"modifyInventory"} />} />
           <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}`} element={<SolidarityEvents />} />
           <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}/newSolidarityEvent`} element={<ManageSolidarityEvents action={"addSolidarityEvent"} />} />
           <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}/modifySolidarityEvent`} element={<ManageSolidarityEvents action={"modifySolidarityEvent"} />} />
