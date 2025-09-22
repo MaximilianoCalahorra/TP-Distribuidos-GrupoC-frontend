@@ -4,11 +4,12 @@ import { ThemeProvider } from "@mui/material/styles";
 import { theme } from './theme/theme.js'
 import './index.css'
 import App from './App.jsx'
+import { UserProvider } from "./store/userStore";
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <ThemeProvider theme={theme}>
+  <ThemeProvider theme={theme}>
+    <UserProvider>
       <App />
-    </ThemeProvider>
-  </StrictMode>,
+    </UserProvider>
+  </ThemeProvider>
 )

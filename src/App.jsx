@@ -13,7 +13,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path={`${USERS_BASE_PATH}`} element={<Users />} />
           <Route path={`${USERS_BASE_PATH}/newUser`} element={<ManageUsers action={"addUser"} />} />
-          <Route path={`${USERS_BASE_PATH}/modifyUser`} element={<ManageUsers action={"modifyUser"} />} />
+          <Route path={`${USERS_BASE_PATH}/modifyUser/:id`} element={<ManageUsers action={"modifyUser"} />} />
           <Route path={`${INVENTORIES_BASE_PATH}`} element={<Inventories />} />
           <Route path={`${INVENTORIES_BASE_PATH}/newInventory`} element={<ManageInventories action={"addInventory"} />} />
           <Route path={`${INVENTORIES_BASE_PATH}/modifyInventory/:id`} element={<ManageInventories action={"modifyInventory"} />} />
