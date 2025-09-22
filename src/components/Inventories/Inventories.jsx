@@ -15,12 +15,26 @@ import { useEffect, useState } from "react";
 import AlertDialog from "../UI/Dialogs/AlertaDialog";
 import styles from "./styles.module.css";
 import InventarioService from "../../services/InventarioService";
+import { LoadingScreen, Snackbar } from "../UI/index"
+import { useSelector } from '../../store/userStore';
 
 export default function Inventories() {
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
   const [inventarios, setInventarios] = useState([]);
+  const [reload, setReload] = useState (true);
   const [inventarioSeleccionado, setInventarioSeleccionado] = useState(null);
+  const authToken = useSelector((state) => state.authToken)
+  const [snackbarVisibility, setSnackbarVisibility] = useState (false);
+  const [snackbar, setSnackbar] = useState({
+    status: "",
+    message: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingScreen, setLoadingScreen] = useState({
+    message: "",
+    duration: null,
+  });
   
   //Cerrar alerta:
   const closeAlert = () => {
@@ -37,7 +51,7 @@ export default function Inventories() {
   //Obtener inventarios:
   const fetchInventarios = async () => {
     try {
-      const response = await InventarioService.listarInventarios();
+      const response = await InventarioService.listarInventarios(authToken);
       setInventarios(response.data.inventarios); //Seteamos los inventarios de la página con la respuesta del cliente gRPC.
     } catch (error) {
       console.error("Error al obtener inventarios:", error.response?.data || error.message);
@@ -46,21 +60,52 @@ export default function Inventories() {
 
   //Cargar los inventarios en el primer renderizado de la página:
   useEffect(() => {
-    fetchInventarios();
-  }, []);
+    if (reload) {
+      fetchInventarios();
+      setReload(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reload]);
 
   //Manejador de activar/deshabilitar inventario:
   const handleToggleInventario = async () => {
     if (!inventarioSeleccionado) return;
-
+    setIsLoading(false);
+    setSnackbarVisibility(false);
     try {
       //Si el inventario está desactivado:
       if (inventarioSeleccionado.eliminado) {
-        await InventarioService.habilitarInventario(inventarioSeleccionado.idInventario); //Lo activa.
-        console.log("Inventario activado");
+        await InventarioService.habilitarInventario(inventarioSeleccionado.idInventario, authToken); //Lo activa.
+        setLoadingScreen({
+          message: "Habilitando inventario",
+          duration: 2200,
+        }),
+        setIsLoading(true),
+        setSnackbar({
+          message: "Inventario habilitado con éxito!",
+          status: "success"
+        }),
+        setTimeout(() => {
+          setReload(true);
+          closeAlert();
+          setSnackbarVisibility(true);
+        }, 2000)
       } else { //Está desactivado
-        await InventarioService.eliminarLogicoInventario(inventarioSeleccionado.idInventario); //Lo desactiva
-        console.log("Inventario desactivado");
+        await InventarioService.eliminarLogicoInventario(inventarioSeleccionado.idInventario, authToken); //Lo desactiva
+        setLoadingScreen({
+          message: "Deshabilitando inventario",
+          duration: 2200,
+        }),
+        setIsLoading(true),
+        setSnackbar({
+          message: "Inventario deshabilitado con éxito!",
+          status: "success"
+        }),
+        setTimeout(() => {
+          setReload(true);
+          closeAlert();
+          setSnackbarVisibility(true);
+        }, 2000)
       }
 
       fetchInventarios(); //Recarga los inventarios en la vista.
@@ -154,7 +199,7 @@ export default function Inventories() {
           <TableBody>
             {inventarios.length === 0 ? (
               <TableRow>
-                <TableCell align="center" colSpan={5} sx={{ color: "black", fontWeight: "bold" }}>
+                <TableCell align="center" colSpan={5} sx={{ color: "red", fontWeight: "bold", fontSize:"20px" }}>
                   No hay inventarios registrados
                 </TableCell>
               </TableRow>
@@ -211,10 +256,11 @@ export default function Inventories() {
                       </Button>
                       <Button
                         variant="contained"
-                        sx={{ backgroundColor: inventario.eliminado ? "green" : "red", fontWeight: "bold" }}
-                        onClick={() => openAlert(inventario)}
+                        color={inventario.eliminado == false ? "error" : "success"}
+                        sx={{ fontWeight: "bold" }}
+                        onClick={() => {openAlert (inventario)}}
                       >
-                        {inventario.eliminado ? "Activar" : "Desactivar"}
+                        {inventario.eliminado == false ? "Desactivar" : "Activar"}
                       </Button>
                     </div>
                   </TableCell>
@@ -228,8 +274,21 @@ export default function Inventories() {
         mostrarAlerta={showAlert}
         accion={handleToggleInventario}
         closeAlerta={closeAlert}
-        mensajeAlerta={`Vas a ${inventarioSeleccionado?.eliminado ? "activar" : "desactivar"} el inventario: ${inventarioSeleccionado?.categoria} - ${inventarioSeleccionado?.descripcion}`}
-      /> 
+        mensajeAlerta={`Vas a ${inventarioSeleccionado?.eliminado ? "activar" : "desactivar"} el inventario: ${inventarioSeleccionado?.descripcion}`}
+      />
+      {snackbarVisibility && (
+        <Snackbar
+          status={snackbar.status}
+          message={snackbar.message}
+          visibility={snackbarVisibility}
+        />
+      )} 
+      {isLoading && (
+        <LoadingScreen
+          message={loadingScreen.message}
+          duration={loadingScreen.duration}
+        />
+      )} 
     </div>
   );
 }
