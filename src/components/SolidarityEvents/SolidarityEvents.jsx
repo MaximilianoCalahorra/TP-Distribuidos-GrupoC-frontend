@@ -8,13 +8,21 @@ import {
   TableBody,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AlertDialog from "../UI/Dialogs/AlertaDialog";
 import ListDialog from "../UI/Dialogs/ListDialog";
 import styles from "./styles.module.css";
+import { LoadingScreen, Snackbar } from "../UI/index"
+import { useSelector } from '../../store/userStore';
+import SolidarityEventService from "../../services/SolidarityEventService";
+import { formatProtoTimestamp } from "../../Utils/Utils";
 import DonacionService from "../../services/DonacionService";
 
 export default function SolidarityEvents() {
+  const [membersList, setMembersList] = useState([]);
+  const authToken = useSelector((state) => state.authToken)
+  const [reload, setReload] = useState (true);
+  const [solidarityEvents, setSolidarityEvents] = useState([]);
   const navigate = useNavigate();
 
   const [showDisableEventAlert, setShowDisableEventAlert] = useState(false);
@@ -26,8 +34,13 @@ export default function SolidarityEvents() {
   const openParticipateInEventAlert = () => setShowParticipateInEventAlert(true);
 
   const [showMembersList, setShowMemberList] = useState(false);
-  const closeMembersList = () => setShowMemberList(false);
-  const openMembersList = () => setShowMemberList(true);
+  const closeMembersList = () => {
+    setShowMemberList(false);
+  }
+  const openMembersList = (miembros) => {
+    setShowMemberList(true);
+    setMembersList(miembros);
+  }
 
   const [donaciones, setDonaciones] = useState([]);
   const [showDonationsList, setShowDonationsList] = useState(false);
@@ -48,6 +61,17 @@ export default function SolidarityEvents() {
     setShowDonationsList(false);
     setDonaciones([]); // Limpiamos las donaciones del evento anterior
   };
+
+  useEffect (() => {
+    if (reload) {
+      const getUsers = async () => {
+        const response = await SolidarityEventService.listarEventosSolidarios(authToken);
+        setSolidarityEvents(response.data.eventos);
+      }
+      getUsers();
+      setReload(false);
+    }
+  }, [reload]);
 
   return (
     <div className={styles.mainContainer}>
@@ -82,6 +106,128 @@ export default function SolidarityEvents() {
           </TableHead>
 
           <TableBody>
+            {solidarityEvents.length === 0 ? (
+              <TableRow>
+               <TableCell align="center" colSpan={8} sx={{ color: "red", fontWeight: "bold", fontSize:"20px" }}>
+                  No hay eventos solidarios registrados
+                </TableCell>
+              </TableRow>
+            ) : (
+              solidarityEvents.map((solidarityEvent)=> {
+                return (
+                  <TableRow key={solidarityEvent.idEventoSolidario}>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        color: "black",
+                        fontWeight: "Bold",
+                        border: "solid black 2px",
+                      }}
+                    >
+                      {solidarityEvent.nombre}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        color: "black",
+                        fontWeight: "Bold",
+                        border: "solid black 2px",
+                      }}
+                    >
+                      {solidarityEvent.descripcion}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        color: "black",
+                        fontWeight: "Bold",
+                        border: "solid black 2px",
+                      }}
+                    >
+                      {formatProtoTimestamp(solidarityEvent.fechaHora)}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        color: "white",
+                        fontWeight: "Bold",
+                        border: "solid black 2px",
+                        width: "50px",
+                      }}
+                    >
+                      <div className={styles.actionsContainer}>
+                        <Button
+                          variant="contained"
+                          sx={{ backgroundColor: "purple", fontWeight: "bold" }}
+                          onClick={()=> {openMembersList (solidarityEvent.miembros)}}
+                        >
+                          Listado
+                        </Button>
+                        <Button
+                          variant="contained"
+                          sx={{ backgroundColor: "ligthblue", fontWeight: "bold" }}
+                          onClick={() => {openParticipateInEventAlert()}}
+                        >
+                          Participar
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        color: "white",
+                        fontWeight: "Bold",
+                        border: "solid black 2px",
+                        width: "50px",
+                      }}
+                    >
+                      <div className={styles.actionsContainer}>
+                        <Button
+                          variant="contained"
+                          sx={{ backgroundColor: "purple", fontWeight: "bold" }}
+                          onClick={()=> {openDonationsList ()}}
+                        >
+                          Listado
+                        </Button>
+                        <Button
+                          variant="contained"
+                          sx={{ backgroundColor: "green", fontWeight: "bold" }}
+                          onClick={()=> {navigate("/donations/newDonation")}}
+                        >
+                          Crear
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        color: "white",
+                        fontWeight: "Bold",
+                        border: "solid black 2px",
+                        width: "50px",
+                      }}
+                    >
+                      <div className={styles.actionsContainer}>
+                        <Button
+                          variant="contained"
+                          sx={{ backgroundColor: "orange", fontWeight: "bold" }}
+                          onClick={()=> {navigate("/solidarityEvents/modifySolidarityEvent")}}
+                        >
+                          Modificar
+                        </Button>
+                        <Button
+                          variant="contained"
+                          sx={{ backgroundColor: "red", fontWeight: "bold" }}
+                          onClick={()=> {openDisableEventAlert ()}}
+                        >
+                          Desactivar
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )
+              })
+            )}
             <TableRow>
               <TableCell align="center" sx={{ color: "white", fontWeight: "Bold", border: "solid black 2px" }}></TableCell>
               <TableCell align="center" sx={{ color: "white", fontWeight: "Bold", border: "solid black 2px" }}></TableCell>
@@ -120,6 +266,30 @@ export default function SolidarityEvents() {
           </TableBody>
         </Table>
       </Card>
+      <AlertDialog
+        mostrarAlerta={showDisableEventAlert}
+        accion={() => {}}
+        closeAlerta={closeDisableEventAlert}
+        mensajeAlerta={"Vas a desactivar al evento solidario: "}
+      />
+      <AlertDialog
+        mostrarAlerta={showParticipateInEventAlert}
+        accion={() => {}}
+        closeAlerta={closeParticipateInEventAlert}
+        mensajeAlerta={"Estás a punto de confirmar tu asistencia al evento solidario: "}
+      />
+      <ListDialog
+        mostrarAlerta={showMembersList}
+        elementos={membersList}
+        closeAlerta={closeMembersList}
+        tipoListado={"miembros"}
+      />
+      <ListDialog
+        mostrarAlerta={showDonationsList}
+        elementos={[]}
+        closeAlerta={closeDonationsList}
+        tipoListado={"donaciones"}
+      />    
 
       <AlertDialog mostrarAlerta={showDisableEventAlert} accion={() => {}} closeAlerta={closeDisableEventAlert} mensajeAlerta={"Vas a desactivar al evento solidario: "} />
       <AlertDialog mostrarAlerta={showParticipateInEventAlert} accion={() => {}} closeAlerta={closeParticipateInEventAlert} mensajeAlerta={"Estás a punto de confirmar tu asistencia al evento solidario: "} />

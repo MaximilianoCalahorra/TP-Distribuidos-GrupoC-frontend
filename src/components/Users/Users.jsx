@@ -8,18 +8,93 @@ import {
   TableBody,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AlertDialog from "../UI/Dialogs/AlertaDialog";
 import styles from "./styles.module.css";
+import UsuarioService from "../../services/UsuarioService";
+import { LoadingScreen, Snackbar } from "../UI/index"
+import { useSelector } from '../../store/userStore';
 
 export default function Users() {
+  const [users, setUsers] = useState ([]);
+  const [userId, setUserId] = useState ("");
+  const [reload, setReload] = useState (true);
+  const [accion, setAccion] = useState ("");
+  const [mensajeAlerta, setMensajeAlerta] = useState("");
+  const userAutenticated = useSelector((state)=> state.username);
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
   const closeAlert = () => {
     setShowAlert(false);
   }
-  const openAlert = () => {
+  const openAlert = (nombreUsuario, idUsuario, accion) => {
+    setAccion(accion);
     setShowAlert(true);
+    setMensajeAlerta(`Vas a ${accion} al usuario: ${nombreUsuario}`)
+    setUserId (idUsuario);
+  }
+  const [snackbarVisibility, setSnackbarVisibility] = useState (false);
+  const [snackbar, setSnackbar] = useState({
+    status: "",
+    message: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingScreen, setLoadingScreen] = useState({
+    message: "",
+    duration: null,
+  });
+
+  useEffect (() => {
+    if (reload) {
+      const getUsers = async () => {
+        const response = await UsuarioService.listarUsuarios(authToken);
+        setUsers(response.data.usuarios);
+      }
+      getUsers();
+      setReload(false);
+    }
+  }, [reload])
+
+  const authToken = useSelector((state) => state.authToken)
+
+  const desactivateUser = async (idUser) => {
+    setIsLoading(false);
+    setSnackbarVisibility(false);
+    await UsuarioService.desactivarUsuario(idUser, authToken);
+    setLoadingScreen({
+      message: "Desactivando usuario",
+      duration: 2200,
+    }),
+    setIsLoading(true),
+    setSnackbar({
+      message: "Usuario desactivado con éxito!",
+      status: "success"
+    }),
+    setTimeout(() => {
+      setReload(true);
+      closeAlert();
+      setSnackbarVisibility(true);
+    }, 2000)
+  }
+
+  const reactivateUser = async (idUser) => {
+    setIsLoading(false);
+    setSnackbarVisibility(false);
+    await UsuarioService.reactivarUsuario(idUser, authToken);
+    setLoadingScreen({
+      message: "Reactivando usuario",
+      duration: 2200,
+    }),
+    setIsLoading(true),
+    setSnackbar({
+      message: "Usuario reactivado con éxito!",
+      status: "success"
+    }),
+    setTimeout(() => {
+      setReload(true);
+      closeAlert();
+      setSnackbarVisibility(true);
+    }, 2000)
   }
 
   return (
@@ -139,97 +214,141 @@ export default function Users() {
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableCell
-              align="center"
-              sx={{
-                color: "white",
-                fontWeight: "Bold",
-                border: "solid black 2px",
-              }}
-            ></TableCell>
-            <TableCell
-              align="center"
-              sx={{
-                color: "white",
-                fontWeight: "Bold",
-                border: "solid black 2px",
-              }}
-            ></TableCell>
-            <TableCell
-              align="center"
-              sx={{
-                color: "white",
-                fontWeight: "Bold",
-                border: "solid black 2px",
-              }}
-            ></TableCell>
-            <TableCell
-              align="center"
-              sx={{
-                color: "white",
-                fontWeight: "Bold",
-                border: "solid black 2px",
-              }}
-            ></TableCell>
-            <TableCell
-              align="center"
-              sx={{
-                color: "white",
-                fontWeight: "Bold",
-                border: "solid black 2px",
-              }}
-            ></TableCell>
-            <TableCell
-              align="center"
-              sx={{
-                color: "white",
-                fontWeight: "Bold",
-                border: "solid black 2px",
-              }}
-            ></TableCell>
-            <TableCell
-              align="center"
-              sx={{
-                color: "white",
-                fontWeight: "Bold",
-                border: "solid black 2px",
-              }}
-            ></TableCell>
-            <TableCell
-              align="center"
-              sx={{
-                color: "white",
-                fontWeight: "Bold",
-                border: "solid black 2px",
-                width: "50px",
-              }}
-            >
-              <div className={styles.actionsContainer}>
-                <Button
-                  variant="contained"
-                  sx={{ backgroundColor: "orange", fontWeight: "bold" }}
-                  onClick={()=> {navigate("/users/modifyUser")}}
-                >
-                  Modificar
-                </Button>
-                <Button
-                  variant="contained"
-                  sx={{ backgroundColor: "red", fontWeight: "bold" }}
-                  onClick={() => {openAlert ()}}
-                >
-                  Desactivar
-                </Button>
-              </div>
-            </TableCell>
+            {users.length === 1 ? (
+              <TableRow>
+                <TableCell align="center" colSpan={8} sx={{ color: "red", fontWeight: "bold", fontSize:"20px" }}>
+                  No hay usuarios registrados
+                </TableCell>
+              </TableRow>
+            ) : (
+              users
+              .filter((user)=> user.nombreUsuario != userAutenticated)
+              .map((user) => {
+                return (
+                <TableRow key={user.idUsuario}>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      color: "black",
+                      fontWeight: "Bold",
+                      border: "solid black 2px",
+                    }}
+                  >
+                    {user.nombreUsuario}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      color: "black",
+                      fontWeight: "Bold",
+                      border: "solid black 2px",
+                    }}
+                  >
+                    {user.nombre}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      color: "black",
+                      fontWeight: "Bold",
+                      border: "solid black 2px",
+                    }}
+                  >
+                    {user.apellido}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      color: "black",
+                      fontWeight: "Bold",
+                      border: "solid black 2px",
+                    }}
+                  >
+                    {user.telefono}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      color: "black",
+                      fontWeight: "Bold",
+                      border: "solid black 2px",
+                    }}
+                  >
+                    {user.email}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      color: "black",
+                      fontWeight: "Bold",
+                      border: "solid black 2px",
+                    }}
+                  >
+                    {user.rol.nombre}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      color: "black",
+                      fontWeight: "Bold",
+                      border: "solid black 2px",
+                    }}
+                  >
+                    {user.activo == true ? "Si" : "No"}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      color: "white",
+                      fontWeight: "Bold",
+                      border: "solid black 2px",
+                      width: "50px",
+                    }}
+                  >
+                    <div className={styles.actionsContainer}>
+                      <Button
+                        variant="contained"
+                        sx={{ backgroundColor: "orange", fontWeight: "bold" }}
+                        onClick={()=> {navigate(`/users/modifyUser/${user.idUsuario}`)}}
+                      >
+                        Modificar
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color={user.activo == true ? "error" : "success"}
+                        sx={{ fontWeight: "bold" }}
+                        onClick={() => {openAlert (user.nombreUsuario, user.idUsuario, user.activo == true ? "desactivar" : "reactivar")}}
+                      >
+                        {user.activo == true ? "Desactivar" : "Activar"}
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+                )
+              })
+            )}
           </TableBody>
         </Table>
       </Card>
        <AlertDialog
           mostrarAlerta={showAlert}
-          accion={() => {}}
+          accion={() => {accion == "desactivar" ? desactivateUser (userId) : reactivateUser(userId)}}
           closeAlerta={closeAlert}
-          mensajeAlerta={"Vas a eliminar a desactivar al usuario: "}
-        /> 
+          mensajeAlerta={mensajeAlerta}
+        />
+        {snackbarVisibility && (
+          <Snackbar
+            status={snackbar.status}
+            message={snackbar.message}
+            visibility={snackbarVisibility}
+          />
+        )} 
+        {isLoading && (
+          <LoadingScreen
+            message={loadingScreen.message}
+            duration={loadingScreen.duration}
+          />
+        )}
     </div>
   );
 }

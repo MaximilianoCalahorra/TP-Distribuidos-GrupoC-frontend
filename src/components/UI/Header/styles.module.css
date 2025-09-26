@@ -2,7 +2,18 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 40px;
+    justify-content: center;
+    gap: 50px;
+}
+
+.buttonsContainer:has(:only-child) {
+  margin-right: 180px;
+}
+
+.imgContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .imgContainer > img {
