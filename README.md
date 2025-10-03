@@ -83,22 +83,22 @@ Los componentes consumen estos servicios para **mostrar tablas, llenar formulari
 
 1. Clonar el repositorio:
 
-```bash
-git clone https://github.com/MaximilianoCalahorra/TP-Distribuidos-GrupoC-frontend
-cd TP-Distribuidos-GrupoC-frontend
-```
+    ```bash
+    git clone https://github.com/MaximilianoCalahorra/TP-Distribuidos-GrupoC-frontend
+    cd TP-Distribuidos-GrupoC-frontend
+    ```
 
 2. Instalar dependencias:
 
-```bash:
-npm install
-```
+    ```bash:
+    npm install
+    ```
 
 3. Ejecutar en desarrollo:
 
-```bash:
-npm start
-```
+    ```bash:
+    npm start
+    ```
 
 El frontend quedará disponible en ```http://localhost:5173```.
 
