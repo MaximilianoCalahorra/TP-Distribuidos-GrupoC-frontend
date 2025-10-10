@@ -15,6 +15,7 @@ import { useState, useEffect } from 'react';
 import UsuarioService from "../../services/UsuarioService";
 import { useSelector } from '../../store/userStore';
 import { useParams } from "react-router-dom";
+import { formatProtoTimestampForInput } from '../../Utils/Utils';
 
 export default function ManageSolidarityEvents({action}) {
 
@@ -66,7 +67,7 @@ export default function ManageSolidarityEvents({action}) {
   
   const getEtiqueta = (emailMiembro) => {
     const m = miembrosActivos.find((x) => x.email === emailMiembro);
-    if (!m) return emailMiembro; // fallback
+    if (!m) return emailMiembro;
     return `${m.nombre} ${m.apellido} - ${m.rol?.nombre ?? ""}`.trim();
   };
 
@@ -92,7 +93,6 @@ export default function ManageSolidarityEvents({action}) {
   };
 
   const extraerMiembrosSeleccionados = () => {
-    console.log(userEmail)
     const miembros = miembrosSeleccionados
       .map(email => miembrosActivos.find(m => m.email === email))
       .filter(Boolean)
@@ -108,7 +108,6 @@ export default function ManageSolidarityEvents({action}) {
   useEffect(()=> {
       const traerUsuariosActivos = async () => {
         const response = await UsuarioService.listarUsuariosActivos();
-        console.log(userEmail);
         setMiembrosActivos(
            (response.data.usuariosActivos ?? []).filter(m =>
             (m.email ?? "").toLowerCase() !== (userEmail ?? "").toLowerCase()
@@ -169,6 +168,7 @@ export default function ManageSolidarityEvents({action}) {
       }, 2000)
       // eslint-disable-next-line no-unused-vars
     } catch (error) {
+      console.log(error);
       setSnackbar({
         message: "Error en la creacion del evento solidario!",
         status: "error"
@@ -177,13 +177,20 @@ export default function ManageSolidarityEvents({action}) {
     }
   }
 
-    const modifyEvent = async () => {
+    const modifyEvent = async (idEvento) => {
       setIsLoading(false);
       setSnackbarVisibility(false);
       try {
-        const payload = {...solidarityEventData, idUsuario: id}
-        await UsuarioService.modificarUsuario(payload, authToken);
-        await SolidarityEventService.modificarEventoSolidario(id, authToken);
+       const miembros = extraerMiembrosSeleccionados(miembrosSeleccionados);
+        const payload = {
+        ...solidarityEventData,
+        fechaHora: {
+          seconds: String(solidarityEventData.fechaHora.seconds),
+          nanos: String(solidarityEventData.fechaHora.nanos),
+        },
+        miembros,
+      };
+        await SolidarityEventService.modificarEventoSolidario(payload, authToken, idEvento);
         setLoadingScreen({
           message: "Modificando evento solidario",
           duration: 2100,
@@ -212,17 +219,36 @@ export default function ManageSolidarityEvents({action}) {
               }
             ]
           })
+          setMiembrosSeleccionados([]);
+          setFechaInput("");
           setSnackbarVisibility(true);
         }, 2000)
         // eslint-disable-next-line no-unused-vars
       } catch (error) {
         setSnackbar({
-          message: "Ya existe un usuario con ese email o nombre de usuario!",
+          message: "Error modificando el evento!",
           status: "error"
         })
         setSnackbarVisibility(true);
       }
     }
+
+    useEffect (()=> {
+      if (id) {
+        const traerEventoSolidario = async () => {
+          const response = await SolidarityEventService.obtenerEventoSolidarioPorId(authToken, id);
+          const evento = response.data;
+          setSolidarityEventData(evento);
+          const emails = Array.from(new Set((evento.miembros ?? [])
+          .map(m => String(m.email))
+          .filter(e => (e ?? '').toLowerCase() !== (userEmail ?? '').toLowerCase())))
+          setMiembrosSeleccionados(emails);
+          setFechaInput(formatProtoTimestampForInput(evento.fechaHora));
+        }
+        traerEventoSolidario ();
+      }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
   return (
     <div className={styles.container}>
@@ -268,7 +294,7 @@ export default function ManageSolidarityEvents({action}) {
           label="Fecha y Hora"
           type='datetime-local'
           size='small'
-          value={fechaInput}
+          value={fechaInput || ""}
           onChange={handleFechaChange}
           slotProps={{
             input: {
@@ -314,7 +340,7 @@ export default function ManageSolidarityEvents({action}) {
         {action == "addSolidarityEvent" ? (
           <Button variant="contained" color="primary" startIcon={<FileUploadIcon />} sx={{fontWeight:"bold"}} onClick={()=> {createSolidarityEvent()}}>Cargar evento solidario</Button>
         ) : (
-          <Button variant="contained" color="primary" startIcon={<FileUploadIcon />} sx={{fontWeight:"bold"}} onClick={()=> {modifyEvent ()}}>Modificar evento solidario</Button>
+          <Button variant="contained" color="primary" startIcon={<FileUploadIcon />} sx={{fontWeight:"bold"}} onClick={()=> {modifyEvent (id)}}>Modificar evento solidario</Button>
         )}
       </Card>
       {snackbarVisibility && (
@@ -326,8 +352,8 @@ export default function ManageSolidarityEvents({action}) {
       )}
       {isLoading && (
         <LoadingScreen
-            message={loadingScreen.message}
-            duration={loadingScreen.duration}
+          message={loadingScreen.message}
+          duration={loadingScreen.duration}
         />
       )}
     </div>

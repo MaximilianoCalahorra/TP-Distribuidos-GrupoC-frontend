@@ -107,6 +107,12 @@ export default function ManageInventories({action}) {
     }
   }
 
+  const datosCompletos = (objeto) => {
+    return Object.values(objeto).every(
+      (valor) => valor !== null && valor !== undefined && valor !== ""
+    );
+  };
+
   return (
     <div className={styles.container}>
       <Card elevation={5} sx={{display:"flex", flexDirection:"column", padding:"20px", gap:"30px"}}>
@@ -178,6 +184,7 @@ export default function ManageInventories({action}) {
           startIcon={<FileUploadIcon />}
           sx={{ fontWeight: "bold" }}
           onClick={handleSubmit}
+          disabled={!datosCompletos(inventoryData)}
         >
           {action === "addInventory" ? "Cargar inventario" : "Modificar inventario"}
         </Button>

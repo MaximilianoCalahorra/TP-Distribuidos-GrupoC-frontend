@@ -43,3 +43,23 @@ export const formatProtoTimestamp = (ts) => {
   const min = pad(d.getMinutes());
   return `${dd}/${mm}/${yyyy} ${HH}:${min}`;
 }
+
+export const formatProtoTimestampForInput = (ts) => {
+  const d = protoTsToDate(ts);
+  if (!d) return "";
+  const pad = (n) => String(n).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const MM = pad(d.getMonth() + 1);
+  const dd = pad(d.getDate());
+  const HH = pad(d.getHours());
+  const mm = pad(d.getMinutes());
+  return `${yyyy}-${MM}-${dd}T${HH}:${mm}`;
+};
+
+export const getFilteredUsers = (users, userAutenticated) => {
+  return users.filter((user)=> user.nombreUsuario != userAutenticated)
+}
+
+export const authUserIsPresent = (members, nombreUsuario) => {
+  return members.some (member => member.nombreUsuario === nombreUsuario)
+}
