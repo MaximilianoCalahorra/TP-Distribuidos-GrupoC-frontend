@@ -13,11 +13,11 @@ class InventarioService {
 
   //Listar inventarios activos:
   listarInventariosActivos(authToken) {
-    return axios.get(`${Constants.BASE_URL}/inventarios/activos`), {
+     return axios.get(`${Constants.BASE_URL}/inventarios/activos`, {
       headers: {
         Authorization: `Basic ${authToken}`,
       }
-    };
+    });
   }
 
   //Crear un inventario:

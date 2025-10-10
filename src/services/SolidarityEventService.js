@@ -18,8 +18,35 @@ class SolidarityEventService {
     });
   }
   modificarEventoSolidario(payload, authToken, idEvento) {
-    console.log(payload);
     return axios.patch(`${Constants.BASE_URL}/eventos-solidarios/${idEvento}`, payload, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
+  }
+  participarDeEventoSolidario(authToken, idEvento) {
+    return axios.post(`${Constants.BASE_URL}/eventos-solidarios/alta/${idEvento}`, null, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
+  }
+  darseDeBajaDeEventoSolidario(authToken, idEvento) {
+    return axios.post(`${Constants.BASE_URL}/eventos-solidarios/baja/${idEvento}`, null, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
+  }
+  obtenerEventoSolidarioPorId(authToken, idEvento) {
+     return axios.get(`${Constants.BASE_URL}/eventos-solidarios/${idEvento}`, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
+  }
+  eliminarEventoSolidario(authToken, idEvento) {
+     return axios.delete(`${Constants.BASE_URL}/eventos-solidarios/${idEvento}`, {
       headers: {
         Authorization: `Basic ${authToken}`,
       },

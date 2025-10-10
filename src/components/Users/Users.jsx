@@ -14,6 +14,7 @@ import styles from "./styles.module.css";
 import UsuarioService from "../../services/UsuarioService";
 import { LoadingScreen, Snackbar } from "../UI/index"
 import { useSelector } from '../../store/userStore';
+import { getFilteredUsers } from "../../Utils/Utils";
 
 export default function Users() {
   const [users, setUsers] = useState ([]);
@@ -214,15 +215,14 @@ export default function Users() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.length === 1 ? (
+            {getFilteredUsers(users, userAutenticated).length === 0 ? (
               <TableRow>
                 <TableCell align="center" colSpan={8} sx={{ color: "red", fontWeight: "bold", fontSize:"20px" }}>
                   No hay usuarios registrados
                 </TableCell>
               </TableRow>
             ) : (
-              users
-              .filter((user)=> user.nombreUsuario != userAutenticated)
+              getFilteredUsers(users, userAutenticated)
               .map((user) => {
                 return (
                 <TableRow key={user.idUsuario}>
