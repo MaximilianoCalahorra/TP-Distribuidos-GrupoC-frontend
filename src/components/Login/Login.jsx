@@ -62,6 +62,12 @@ export default function Login() {
     }
   }
 
+  const datosCompletos = (objeto) => {
+    return Object.values(objeto).every(
+      (valor) => valor !== null && valor !== undefined && valor !== ""
+    );
+  };
+
   return (
     <div className={styles.container}>
       <div>
@@ -121,7 +127,8 @@ export default function Login() {
               }}
             />
           <div className={styles.buttonContainer}>
-            <Button variant="contained" color="primary" startIcon={<LoginIcon />} sx={{fontWeight:"bold"}} onClick={login}>
+            <Button variant="contained" color="primary" startIcon={<LoginIcon />} sx={{fontWeight:"bold"}} onClick={login} 
+            disabled={!datosCompletos(userData)}>
               Ingresar
             </Button>
           </div>

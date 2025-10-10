@@ -19,7 +19,7 @@ function App() {
           <Route path={`${INVENTORIES_BASE_PATH}/modifyInventory/:id`} element={<ManageInventories action={"modifyInventory"} />} />
           <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}`} element={<SolidarityEvents />} />
           <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}/newSolidarityEvent`} element={<ManageSolidarityEvents action={"addSolidarityEvent"} />} />
-          <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}/modifySolidarityEvent`} element={<ManageSolidarityEvents action={"modifySolidarityEvent"} />} />
+          <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}/modifySolidarityEvent/:id`} element={<ManageSolidarityEvents action={"modifySolidarityEvent"} />} />
           <Route path={`${DONATIONS_BASE_PATH}/newDonation/:id`} element={<ManageDonations />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

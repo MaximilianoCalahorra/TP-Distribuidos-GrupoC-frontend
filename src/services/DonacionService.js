@@ -3,13 +3,21 @@ import { Constants } from "../constants/index";
 
 class DonacionService {
   //Listar donaciones de un evento:
-  listarDonacionesPorEvento(idEventoSolidario) {
-    return axios.get(`${Constants.BASE_URL}/donaciones/evento/${idEventoSolidario}`);
+  listarDonacionesPorEvento(idEventoSolidario, authToken) {
+    return axios.get(`${Constants.BASE_URL}/donaciones/evento/${idEventoSolidario}`, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
   }
 
   //Crear una donacion:
-  crearDonacion(idEventoSolidario, payload) {
-    return axios.post(`${Constants.BASE_URL}/donaciones/evento/${idEventoSolidario}`, payload);
+  crearDonacion(idEventoSolidario, payload, authToken) {
+    return axios.post(`${Constants.BASE_URL}/donaciones/evento/${idEventoSolidario}`, payload, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
   }
 }
 

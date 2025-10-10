@@ -122,6 +122,12 @@ export default function ManageUsers({action}) {
     }
   }
 
+  const datosCompletos = (objeto) => {
+    return Object.values(objeto).every(
+      (valor) => valor !== null && valor !== undefined && valor !== ""
+    );
+  };
+
   return (
     <div className={styles.container}>
       <Card elevation={5} sx={{display:"flex", flexDirection:"column", padding:"20px", gap:"30px"}}>
@@ -231,9 +237,11 @@ export default function ManageUsers({action}) {
           }}
         />
         {action == "addUser" ? (
-          <Button variant="contained" color="primary" startIcon={<FileUploadIcon />} sx={{fontWeight:"bold"}} onClick={()=> {createUser ()}}>Cargar usuario</Button>
+          <Button variant="contained" color="primary" startIcon={<FileUploadIcon />} sx={{fontWeight:"bold"}} onClick={()=> {createUser ()}} 
+          disabled={!datosCompletos(userData)}>Cargar usuario</Button>
         ) : (
-          <Button variant="contained" color="primary" startIcon={<FileUploadIcon />} sx={{fontWeight:"bold"}} onClick={()=> {modifyUser ()}}>Modificar usuario</Button>
+          <Button variant="contained" color="primary" startIcon={<FileUploadIcon />} sx={{fontWeight:"bold"}} onClick={()=> {modifyUser ()}}
+          disabled={!datosCompletos(userData)}>Modificar usuario</Button>
         )}
       </Card>
       {snackbarVisibility && (

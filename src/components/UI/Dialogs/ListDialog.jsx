@@ -54,8 +54,8 @@ function ListDialog({ mostrarAlerta, elementos, closeAlerta, tipoListado }) {
             {elementos.map((item, index) => (
               <ListItem key={index} divider>
                 <ListItemText
-                  primary={item.descripcion || item.nombre || `Elemento ${index + 1}`}
-                  secondary={item.cantidad ? `Cantidad: ${item.cantidad}` : null}
+                  primary={item?.categoria || (item?.nombre + " " + item?.apellido)}
+                  secondary={(item?.rol ? `Rol: ${item?.rol?.nombre}` : null)  || (item?.cantidad && item?.descripcion ? `Cantidad: ${item?.cantidad} - ${item?.descripcion} ` : null)}
                 />
               </ListItem>
             ))}
