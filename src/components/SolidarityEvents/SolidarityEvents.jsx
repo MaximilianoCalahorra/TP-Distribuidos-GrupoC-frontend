@@ -10,6 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import AlertDialog from "../UI/Dialogs/AlertaDialog";
+import MembersListDialog from "../UI/Dialogs/MembersListDialog";
 import ListDialog from "../UI/Dialogs/ListDialog";
 import styles from "./styles.module.css";
 import { LoadingScreen, Snackbar } from "../UI/index"
@@ -20,10 +21,13 @@ import DonacionService from "../../services/DonacionService";
 import { Roles } from "../../constants/Roles";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import LanguageIcon from '@mui/icons-material/Language';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 dayjs.extend(customParseFormat);
 
 export default function SolidarityEvents() {
   const [membersList, setMembersList] = useState([]);
+  const [externalVolunteersList, setExternalVolunteersList] = useState([]);
   const authToken = useSelector((state) => state.authToken)
   const userAuthenticated = useSelector((state) => state.username)
   const userRol = useSelector((state) => state.userRol)
@@ -63,10 +67,19 @@ export default function SolidarityEvents() {
   const closeMembersList = () => {
     setShowMemberList(false);
   }
-  const openMembersList = (miembros) => {
+  const openMembersList = (miembros, voluntariosExternos) => {
     setShowMemberList(true);
     setMembersList(miembros);
+    setExternalVolunteersList(voluntariosExternos);
   }
+
+  
+  const [showPublishEventAlert, setShowPublishEventAlert] = useState(false);
+  const closePublishEventAlert = () => setShowPublishEventAlert(false);
+  const openPublishEventAlert = (solidarityEvent) => {
+    setSelectedSolidarityEvent(solidarityEvent);
+    setShowPublishEventAlert(true);
+  } 
 
   const [donaciones, setDonaciones] = useState([]);
   const [showDonationsList, setShowDonationsList] = useState(false);
@@ -164,18 +177,50 @@ export default function SolidarityEvents() {
     return fechaEvento.isBefore(dayjs(), "minute");
   }
 
+  const publicarEventoSolidario = async (idSolidarityEvent) => {
+      setIsLoading(false);
+      setSnackbarVisibility(false);
+      await SolidarityEventService.publicarEventoSolidario(authToken, idSolidarityEvent);
+      setLoadingScreen({
+        message: "Publicando el evento solidario",
+        duration: 2200,
+      }),
+      setIsLoading(true),
+      setSnackbar({
+        message: "Publicación realizada con éxito!",
+        status: "success"
+      }),
+      setTimeout(() => {
+        setReload(true);
+        closePublishEventAlert();
+        setSnackbarVisibility(true);
+      }, 2000)
+    }
+
   return (
     <div className={styles.mainContainer}>
       <div className={styles.titleContainer}>
         <h1>Eventos Solidarios</h1>
-        <Button
-          variant="contained"
-          color="success"
-          sx={{ fontWeight: "bold" }}
-          onClick={() => navigate("/solidarityEvents/newSolidarityEvent")}
-        >
-          Registrar nuevo evento solidario
-        </Button>
+        <div className={styles.buttonsContainer}>
+          <Button
+            variant="contained"
+            color="success"
+            sx={{ fontWeight: "bold" }}
+            onClick={() => navigate("/solidarityEvents/newSolidarityEvent")}
+            startIcon={<AddCircleOutlineIcon/>}
+          >
+            Registrar nuevo evento solidario
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            sx={{ fontWeight: "bold", marginLeft:"38%" }}
+            onClick={() => navigate("/externalSolidarityEvents")}
+            startIcon={<LanguageIcon/>}
+          >
+            Eventos externos
+          </Button>
+        </div>
       </div>
 
       <Card elevation={15} sx={{ width: "98%" }}>
@@ -253,7 +298,7 @@ export default function SolidarityEvents() {
                         <Button
                           variant="contained"
                           sx={{ backgroundColor: "purple", fontWeight: "bold" }}
-                          onClick={()=> {openMembersList (solidarityEvent.miembros)}}
+                          onClick={()=> {openMembersList (solidarityEvent.miembros, solidarityEvent.voluntariosExternos)}}
                         >
                           Listado
                         </Button>
@@ -293,7 +338,7 @@ export default function SolidarityEvents() {
                             <Button
                               variant="contained"
                               sx={{ backgroundColor: "green", fontWeight: "bold" }}
-                              onClick={()=> {navigate(`/donations/newDonation/${solidarityEvent.idEventoSolidario}`)}}
+                              onClick={()=> {navigate(`/solidarityEvents/newDonation/${solidarityEvent.idEventoSolidario}`)}}
                               disabled={!eventoPasado(formatProtoTimestamp(solidarityEvent.fechaHora))}
                             >
                               Crear
@@ -325,6 +370,14 @@ export default function SolidarityEvents() {
                             >
                               Eliminar
                             </Button>
+                            <Button
+                              variant="contained"
+                              sx={{ backgroundColor: "primary", fontWeight: "bold" }}
+                              onClick={()=> {openPublishEventAlert (solidarityEvent)}}
+                              disabled={eventoPasado(formatProtoTimestamp(solidarityEvent.fechaHora)) || solidarityEvent.publicado == 1}
+                            >
+                              Publicar
+                            </Button>
                           </div>
                         </TableCell>
                       </>
@@ -348,11 +401,17 @@ export default function SolidarityEvents() {
         closeAlerta={closeEventAlert}
         mensajeAlerta={action == "Baja" ? "Estás a punto de darte de baja del evento solidario: " + selectedSolidarityEvent.nombre  : "Estás a punto de confirmar tu asistencia al evento solidario: " + selectedSolidarityEvent.nombre}
       />
-      <ListDialog
+      <AlertDialog
+        mostrarAlerta={showPublishEventAlert}
+        accion={() => {publicarEventoSolidario (selectedSolidarityEvent.idEventoSolidario)}}
+        closeAlerta={closePublishEventAlert}
+        mensajeAlerta={"Estás a punto de publicar el evento solidario: " + selectedSolidarityEvent.nombre}
+      />
+      <MembersListDialog
         mostrarAlerta={showMembersList}
-        elementos={membersList}
+        miembros={membersList}
+        voluntariosExternos={externalVolunteersList}
         closeAlerta={closeMembersList}
-        tipoListado={"miembros"}
       />
       <ListDialog
         mostrarAlerta={showDonationsList}

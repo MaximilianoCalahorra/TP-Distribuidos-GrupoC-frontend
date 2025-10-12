@@ -1,8 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Login, ManageUsers, Page, Users, Inventories, ManageInventories, SolidarityEvents, ManageSolidarityEvents, ManageDonations } from './components';
+import { Login, ManageUsers, Page, Users, Inventories, ManageInventories, SolidarityEvents, ManageSolidarityEvents, ManageDonations, ExternalSolidarityEvents, Donations, RequestDonation, ExternalDonations } from './components';
 const USERS_BASE_PATH = "/users";
 const INVENTORIES_BASE_PATH = "/inventories";
 const SOLIDARITY_EVENTS_BASE_PATH = "/solidarityEvents";
+const EXTERNAL_SOLIDARITY_EVENTS_BASE_PATH = "/ExternalSolidarityEvents";
 const DONATIONS_BASE_PATH = "/donations";
 
 function App() {
@@ -20,7 +21,11 @@ function App() {
           <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}`} element={<SolidarityEvents />} />
           <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}/newSolidarityEvent`} element={<ManageSolidarityEvents action={"addSolidarityEvent"} />} />
           <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}/modifySolidarityEvent/:id`} element={<ManageSolidarityEvents action={"modifySolidarityEvent"} />} />
-          <Route path={`${DONATIONS_BASE_PATH}/newDonation/:id`} element={<ManageDonations />} />
+          <Route path={`${SOLIDARITY_EVENTS_BASE_PATH}/newDonation/:id`} element={<ManageDonations />} />
+          <Route path={`${EXTERNAL_SOLIDARITY_EVENTS_BASE_PATH}`} element={<ExternalSolidarityEvents />} />
+          <Route path={`${DONATIONS_BASE_PATH}`} element={<Donations />} />
+          <Route path={`${DONATIONS_BASE_PATH}Ext`} element={<ExternalDonations />} />
+          <Route path={`${DONATIONS_BASE_PATH}/requestDonation`} element={<RequestDonation />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Page>

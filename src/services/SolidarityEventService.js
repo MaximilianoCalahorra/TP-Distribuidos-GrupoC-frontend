@@ -52,6 +52,13 @@ class SolidarityEventService {
       },
     });
   }
+  publicarEventoSolidario(authToken, idEvento) {
+    return axios.post(`${Constants.BASE_URL}/eventos-solidarios/publicar/${idEvento}`, null, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
+  }
 }
 
 export default new SolidarityEventService();
