@@ -4,7 +4,10 @@ import Logout from "@mui/icons-material/Logout";
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import GroupIcon from '@mui/icons-material/Group';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import FestivalIcon from '@mui/icons-material/Festival';
+import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { AppBar } from '@mui/material';
@@ -23,13 +26,13 @@ export default function Header() {
   return (
     <AppBar elevation={8} sx={{display:"flex", flexDirection: "row", justifyContent: "space-between", 
     alignItems: "center", backgroundColor: "rgb(5, 53, 101)", color: "white", padding: "0px 20px 0px 20px"}}>
-          <div className={styles.imgContainer} onClick={!ocultarMenu ? ()=>{handleNavigate(userRol, navigate)} : ()=>{}}>
+          <div className={styles.imgContainer} onClick={(!ocultarMenu && !location.pathname.includes("/donations")) ? ()=>{handleNavigate(userRol, navigate)} : location.pathname.includes("/donations") ? ()=>{navigate("/donations")}  : ()=>{}}>
             <img src="/IconoPagina.png" alt="" />
             {!ocultarMenu && (
               <h3>{userAutenticated} - {userRol}</h3>
             )}
           </div>
-          {!ocultarMenu && (
+          {((!ocultarMenu && !location.pathname.includes("/donations"))) && (
           <>
             <div className={styles.buttonsContainer}>
               {userRol == Roles [0] && (
@@ -39,14 +42,14 @@ export default function Header() {
                 </Button>
               )}
               {(userRol == Roles [0] || userRol == Roles [1]) && (
-                <Button color='white' startIcon={<GroupIcon />} size={location.pathname.includes("/inventories") ? "large" : "medium"} variant={location.pathname.includes("/inventories") ? "outlined" : "text"} 
+                <Button color='white' startIcon={<InventoryIcon />} size={location.pathname.includes("/inventories") ? "large" : "medium"} variant={location.pathname.includes("/inventories") ? "outlined" : "text"} 
                 sx={{fontWeight: location.pathname.includes("/inventories") ? "bold" : "normal"}} onClick={()=> {navigate("/inventories")}} className={styles.button}>
                   <Typography variant="" color="">Inventario</Typography>
                 </Button>
               )}
               {(userRol == Roles [0] || userRol == Roles [2] || userRol == Roles [3]) && (
-                <Button color='white' startIcon={<FestivalIcon />} size={["/solidarityEvents", "/donations"].some(path => location.pathname.startsWith(path)) ? "large" : "medium"} variant={["/solidarityEvents", "/donations"].some(path => location.pathname.startsWith(path)) ? "outlined" : "text"} 
-                sx={{fontWeight: ["/solidarityEvents", "/donations"].some(path => location.pathname.startsWith(path)) ? "bold" : "normal"}} onClick={()=> {navigate("/solidarityEvents")}} className={styles.button}>
+                <Button color='white' startIcon={<FestivalIcon />} size={["/solidarityEvents", "/donations", "/externalSolidarityEvents"].some(path => location.pathname.startsWith(path)) ? "large" : "medium"} variant={["/solidarityEvents", "/donations", "/externalSolidarityEvents"].some(path => location.pathname.startsWith(path)) ? "outlined" : "text"} 
+                sx={{fontWeight: ["/solidarityEvents", "/externalSolidarityEvents"].some(path => location.pathname.startsWith(path)) ? "bold" : "normal"}} onClick={()=> {navigate("/solidarityEvents")}} className={styles.button}>
                   <Typography variant="" color='white'>Eventos solidarios</Typography>
                 </Button>
               )}
@@ -79,6 +82,57 @@ export default function Header() {
               </Tooltip>
             </div>
           </>
+          )}
+          {(location.pathname.includes("/donations")) && (
+            <>
+              <div className={styles.buttonsContainer}>
+                 {(userRol == Roles [0] || userRol == Roles [1]) && (
+                  <Button color='white' startIcon={<KeyboardBackspaceIcon />} variant="text" 
+                  sx={{fontWeight: "normal"}} onClick={()=> {navigate("/inventories")}} className={styles.button}>
+                    <Typography variant="" color="">Volver al inventario</Typography>
+                  </Button>
+                )}
+                {(userRol == Roles [0] || userRol == Roles [1]) && (
+                  <Button color='white' startIcon={<VolunteerActivismIcon />} size={["/donations", "/donationsExt"].some(path => location.pathname.startsWith(path)) ? "large" : "medium"} variant={["/donations", "/donationsExt"].some(path => location.pathname.startsWith(path)) ? "outlined" : "text"} 
+                  sx={{fontWeight: ["/donations", "/donationsExt"].some(path => location.pathname.startsWith(path))  ? "bold" : "normal"}} onClick={()=> {navigate("/donations")}} className={styles.button}>
+                    <Typography variant="" color="">Solicitud de donaciones</Typography>
+                  </Button>
+                )}
+                {(userRol == Roles [0] || userRol == Roles [1]) && (
+                  <Button color='white' startIcon={<VolunteerActivismIcon />} size={location.pathname.includes("/inventories") ? "large" : "medium"} variant={location.pathname.includes("/inventories") ? "outlined" : "text"} 
+                  sx={{fontWeight: location.pathname.includes("/inventories") ? "bold" : "normal"}} onClick={()=> {navigate("/inventories")}} className={styles.button}>
+                    <Typography variant="" color="">Ofrecimiento de donaciones</Typography>
+                  </Button>
+                )}
+              </div>
+              <div>
+                <Tooltip 
+                  title="Logout" 
+                  arrow
+                  slotProps={{
+                    popper: {
+                      modifiers: [
+                        {
+                          name: 'offset',
+                          options: {
+                            offset: [0, -10],
+                          },
+                        },
+                      ],
+                    },
+                  }}>
+                  <IconButton aria-label="" onClick={()=>{navigate("/login")}}>  
+                    <Logout 
+                      sx={{
+                        fontSize:"40px",
+                        cursor:"pointer",
+                        color:"white"
+                      }}
+                    />
+                  </IconButton>
+                </Tooltip>
+              </div>
+            </>
           )}
     </AppBar>
   )

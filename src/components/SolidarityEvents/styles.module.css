@@ -8,10 +8,9 @@
 
 .titleContainer {
     display: flex;
-    justify-content: center;
     flex-direction: column;
-    align-items: center;
     gap: 20px;
+    width: 100%
 }
 
 .actionsContainer {
@@ -20,4 +19,9 @@
     justify-content: center;
     gap: 15px;
     width: 100%;
+}
+
+.buttonsContainer {
+    display: flex;
+    margin-left: 38.5%;
 }

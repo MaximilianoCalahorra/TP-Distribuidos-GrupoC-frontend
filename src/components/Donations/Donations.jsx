@@ -14,10 +14,10 @@ import styles from "./styles.module.css";
 import InventarioService from "../../services/InventarioService";
 import { LoadingScreen, Snackbar } from "../UI/index"
 import { useSelector } from '../../store/userStore';
-import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import LanguageIcon from '@mui/icons-material/Language';
 
-export default function Inventories() {
+export default function Donations() {
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
   const [inventarios, setInventarios] = useState([]);
@@ -118,25 +118,25 @@ export default function Inventories() {
   return (
     <div className={styles.mainContainer}>
       <div className={styles.titleContainer}>
-        <h1>Gestión de Inventarios</h1>
+        <h1>Solicitudes de donaciones</h1>
         <div className={styles.buttonsContainer}>
           <Button 
             variant="contained" 
             color="success" 
             sx={{ fontWeight: "bold" }} 
-            onClick={()=> {navigate("/inventories/newInventory")}}
+            onClick={()=> {navigate("/donations/requestDonation")}}
             startIcon={<AddCircleOutlineIcon/>}
           >
-            Registrar nuevo inventario
+            Registrar una nueva solicitud
           </Button>
           <Button
             variant="contained"
             color="secondary"
-            sx={{ fontWeight: "bold", marginLeft:"48%" }}
-            onClick={() => navigate("/donations")}
-            startIcon={<VolunteerActivismIcon/>}
+            sx={{ fontWeight: "bold", marginLeft:"38%" }}
+            onClick={() => navigate("/donationsExt")}
+            startIcon={<LanguageIcon/>}
           >
-            Donaciones
+            Solicitudes externas
           </Button>
         </div>
       </div>
@@ -181,30 +181,6 @@ export default function Inventories() {
                   borderLeft: "solid black 2px",
                   borderTop: "solid black 2px",
                   borderBottom: "solid black 2px",
-                }}
-              >
-                Cantidad
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{
-                  color: "white",
-                  fontWeight: "Bold",
-                  borderLeft: "solid black 2px",
-                  borderTop: "solid black 2px",
-                  borderBottom: "solid black 2px",
-                }}
-              >
-                Eliminado
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{
-                  color: "white",
-                  fontWeight: "Bold",
-                  borderLeft: "solid black 2px",
-                  borderTop: "solid black 2px",
-                  borderBottom: "solid black 2px",
                   borderRight: "solid black 2px",
                 }}
               >
@@ -215,8 +191,8 @@ export default function Inventories() {
           <TableBody>
             {inventarios.length === 0 ? (
               <TableRow>
-                <TableCell align="center" colSpan={5} sx={{ color: "red", fontWeight: "bold", fontSize:"20px" }}>
-                  No hay inventarios registrados
+                <TableCell align="center" colSpan={3} sx={{ color: "red", fontWeight: "bold", fontSize:"20px" }}>
+                  No hay solicitudes de donaciones registradas
                 </TableCell>
               </TableRow>
             ) :
@@ -239,22 +215,6 @@ export default function Inventories() {
                   }}>
                     {inventario.descripcion}
                   </TableCell>
-                  <TableCell  align="center" 
-                  sx={{
-                    color: "black",
-                    fontWeight: "Bold",
-                    border: "solid black 2px",
-                  }}>
-                    {inventario.cantidad}
-                  </TableCell>
-                  <TableCell  align="center" 
-                  sx={{
-                    color: "black",
-                    fontWeight: "Bold",
-                    border: "solid black 2px",
-                  }}>
-                    {inventario.eliminado ? "Sí" : "No"}
-                  </TableCell>
                   <TableCell align="center"
                   sx={{
                     color: "black",
@@ -265,18 +225,11 @@ export default function Inventories() {
                     <div className={styles.actionsContainer}>
                       <Button
                         variant="contained"
-                        sx={{ backgroundColor: "orange", fontWeight: "bold" }}
-                        onClick={()=> {navigate(`/inventories/modifyInventory/${inventario.idInventario}`)}}
-                      >
-                        Modificar
-                      </Button>
-                      <Button
-                        variant="contained"
                         color={inventario.eliminado == false ? "error" : "success"}
                         sx={{ fontWeight: "bold" }}
                         onClick={() => {openAlert (inventario)}}
                       >
-                        {inventario.eliminado == false ? "Desactivar" : "Activar"}
+                        Cancelar solicitud
                       </Button>
                     </div>
                   </TableCell>
@@ -290,7 +243,7 @@ export default function Inventories() {
         mostrarAlerta={showAlert}
         accion={handleToggleInventario}
         closeAlerta={closeAlert}
-        mensajeAlerta={`Vas a ${inventarioSeleccionado?.eliminado ? "activar" : "desactivar"} el inventario: ${inventarioSeleccionado?.descripcion}`}
+        mensajeAlerta={`Vas a cancelar la solicitud de ${inventarioSeleccionado?.descripcion}`}
       />
       {snackbarVisibility && (
         <Snackbar

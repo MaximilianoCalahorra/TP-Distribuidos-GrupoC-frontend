@@ -7,3 +7,7 @@ export { default as ManageInventories } from './ManageInventories/ManageInventor
 export { default as SolidarityEvents } from './SolidarityEvents/SolidarityEvents'
 export { default as ManageSolidarityEvents } from './ManageSolidarityEvents/ManageSolidarityEvents'
 export { default as ManageDonations } from './ManageDonations/ManageDonations'
+export { default as ExternalSolidarityEvents } from './ExternalSolidarityEvents/ExternalSolidarityEvents'
+export { default as Donations } from './Donations/Donations'
+export { default as RequestDonation } from './RequestDonation/RequestDonation'
+export { default as ExternalDonations } from './ExternalDonations/ExternalDonations'
