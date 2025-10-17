@@ -33,7 +33,6 @@ export default function ManageDonations() {
   });
   
   const { id } = useParams(); //Obtener el id enviado a través de la ruta.
-  console.log("Holaaa" + id)
   const authToken = useSelector((state) => state.authToken)
 
   useEffect (()=> {
