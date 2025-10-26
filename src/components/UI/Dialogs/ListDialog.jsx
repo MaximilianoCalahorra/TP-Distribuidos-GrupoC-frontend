@@ -4,7 +4,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { Divider, Typography, List, ListItem, ListItemText } from '@mui/material';
 import PropTypes from "prop-types";
-import { Dialog } from '@mui/material';
+import { Dialog, TextField } from '@mui/material';
 
 function ListDialog({ mostrarAlerta, elementos, closeAlerta, tipoListado }) {
 
@@ -47,7 +47,11 @@ function ListDialog({ mostrarAlerta, elementos, closeAlerta, tipoListado }) {
       <DialogContent sx={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
         {elementos.length === 0 ? (
           <Typography variant="body1" sx={{ mt: 2 }}>
-            No existen {tipoListado} asociados a este evento
+            {tipoListado == "items" ? (
+              `No existen items solicitados`    
+            ) : (
+              `No existen ${tipoListado} asociados a este evento`
+            )}
           </Typography>
         ) : (
           <List sx={{ width: '100%' }}>
@@ -55,7 +59,7 @@ function ListDialog({ mostrarAlerta, elementos, closeAlerta, tipoListado }) {
               <ListItem key={index} divider>
                 <ListItemText
                   primary={item?.categoria || (item?.nombre + " " + item?.apellido)}
-                  secondary={(item?.rol ? `Rol: ${item?.rol?.nombre}` : null)  || (item?.cantidad && item?.descripcion ? `Cantidad: ${item?.cantidad} - ${item?.descripcion} ` : null)}
+                  secondary={(item?.rol ? `Rol: ${item?.rol?.nombre}` : null)  || (item?.cantidad && item?.descripcion ? `Cantidad: ${item?.cantidad} - ${item?.descripcion} ` : null) || (item?.descripcion)}
                 />
               </ListItem>
             ))}

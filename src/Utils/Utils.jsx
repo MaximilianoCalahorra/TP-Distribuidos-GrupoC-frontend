@@ -63,3 +63,27 @@ export const getFilteredUsers = (users, userAutenticated) => {
 export const authUserIsPresent = (members, nombreUsuario) => {
   return members.some (member => member.nombreUsuario === nombreUsuario)
 }
+
+export const disableTransfer = (inventories, items) => {
+  return items.every(item => {
+    return inventories.find(inv =>
+      inv.categoria === item.categoria &&
+      inv.descripcion === item.descripcion &&
+      inv.cantidad > 0
+    );
+  });
+}
+export const getInventoriesSelected = (inventories, items) => {
+  return inventories.filter(inv =>
+    inv.cantidad > 0 &&
+    items.some(item =>
+      item.categoria === inv.categoria &&
+      item.descripcion === inv.descripcion
+    )
+  );
+}
+
+export const getInventoryAmount = (inventories, item) => {
+  console.log(inventories, item)
+  return inventories.find(inv =>  inv?.categoria === item?.categoria && inv?.descripcion === item?.descripcion)
+}

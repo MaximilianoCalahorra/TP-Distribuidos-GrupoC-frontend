@@ -8,6 +8,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import FestivalIcon from '@mui/icons-material/Festival';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import ImportExportIcon from '@mui/icons-material/ImportExport';
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { AppBar } from '@mui/material';
@@ -32,7 +33,7 @@ export default function Header() {
               <h3>{userAutenticated} - {userRol}</h3>
             )}
           </div>
-          {((!ocultarMenu && !location.pathname.includes("/donations"))) && (
+          {((!ocultarMenu && !location.pathname.includes("/donations") && !location.pathname.includes("/offersDonations") && !location.pathname.includes("/transfers"))) && (
           <>
             <div className={styles.buttonsContainer}>
               {userRol == Roles [0] && (
@@ -83,7 +84,7 @@ export default function Header() {
             </div>
           </>
           )}
-          {(location.pathname.includes("/donations")) && (
+          {(location.pathname.includes("/donations") || (location.pathname.includes("/offersDonations")) || location.pathname.includes("transfers")) && (
             <>
               <div className={styles.buttonsContainer}>
                  {(userRol == Roles [0] || userRol == Roles [1]) && (
@@ -95,13 +96,19 @@ export default function Header() {
                 {(userRol == Roles [0] || userRol == Roles [1]) && (
                   <Button color='white' startIcon={<VolunteerActivismIcon />} size={["/donations", "/donationsExt"].some(path => location.pathname.startsWith(path)) ? "large" : "medium"} variant={["/donations", "/donationsExt"].some(path => location.pathname.startsWith(path)) ? "outlined" : "text"} 
                   sx={{fontWeight: ["/donations", "/donationsExt"].some(path => location.pathname.startsWith(path))  ? "bold" : "normal"}} onClick={()=> {navigate("/donations")}} className={styles.button}>
-                    <Typography variant="" color="">Solicitud de donaciones</Typography>
+                    <Typography variant="" color="">Solicitudes</Typography>
                   </Button>
                 )}
                 {(userRol == Roles [0] || userRol == Roles [1]) && (
-                  <Button color='white' startIcon={<VolunteerActivismIcon />} size={location.pathname.includes("/inventories") ? "large" : "medium"} variant={location.pathname.includes("/inventories") ? "outlined" : "text"} 
-                  sx={{fontWeight: location.pathname.includes("/inventories") ? "bold" : "normal"}} onClick={()=> {navigate("/inventories")}} className={styles.button}>
-                    <Typography variant="" color="">Ofrecimiento de donaciones</Typography>
+                  <Button color='white' startIcon={<VolunteerActivismIcon />} size={["/offersDonations", "/offersDonationsExt"].some(path => location.pathname.startsWith(path)) ? "large" : "medium"} variant={["/offersDonations", "/offersDonationsExt"].some(path => location.pathname.startsWith(path)) ? "outlined" : "text"} 
+                  sx={{fontWeight: ["/offersDonations", "/offersDonationsExt"].some(path => location.pathname.startsWith(path))  ? "bold" : "normal"}} onClick={()=> {navigate("/offersDonations")}} className={styles.button}>
+                    <Typography variant="" color="">Ofrecimientos</Typography>
+                  </Button>
+                )}
+                {(userRol == Roles [0] || userRol == Roles [1]) && (
+                  <Button color='white' startIcon={<ImportExportIcon />} size={["/transfersOutcoming", "/transfersIncoming"].some(path => location.pathname.startsWith(path)) ? "large" : "medium"} variant={["/transfersOutcoming", "/transfersIncoming"].some(path => location.pathname.startsWith(path)) ? "outlined" : "text"} 
+                  sx={{fontWeight: ["/transfersOutcoming", "/transfersIncoming"].some(path => location.pathname.startsWith(path))  ? "bold" : "normal"}} onClick={()=> {navigate("/transfersOutcoming")}} className={styles.button}>
+                    <Typography variant="" color="">Transferencias</Typography>
                   </Button>
                 )}
               </div>
