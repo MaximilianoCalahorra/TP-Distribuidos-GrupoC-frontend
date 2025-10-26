@@ -19,9 +19,9 @@ import styles from './styles.module.css'
 import { Categorias } from '../../constants/Categorias'
 import { LoadingScreen, Snackbar } from "../UI/index"
 import { useSelector } from '../../store/userStore';
-import DonationsRequestService from '../../services/DonationsRequestService';
+import DonationOfferService from '../../services/DonationsOfferService';
 
-export default function RequestDonation() {
+export default function ManageDonationOffer() {
 
   const [snackbarVisibility, setSnackbarVisibility] = useState (false);
   const [snackbar, setSnackbar] = useState({
@@ -34,9 +34,10 @@ export default function RequestDonation() {
     duration: null,
   });
 
-  const [itemDonacion, setItemDonacion] = useState ({
+  const [itemOfrecimiento, setItemOfrecimiento] = useState ({
     categoria: "",
-    descripcion: ""
+    descripcion: "",
+    cantidad: ""
   })
 
   const [listadoItems, setListadoItems] = useState ([]);
@@ -46,34 +47,35 @@ export default function RequestDonation() {
      setListadoItems((prev) => [
       ...prev,
       {
-        ...itemDonacion,
+        ...itemOfrecimiento,
         tempId: Date.now()
       }
     ]);
 
-    setItemDonacion({ categoria: "", descripcion: ""});
+    setItemOfrecimiento({ categoria: "", descripcion: "", cantidad: ""});
   }
 
   const authToken = useSelector((state) => state.authToken)
 
-  const generateDonationRequest = async (listadoItems) => {
+  const generateDonationOffer = async (listadoItems) => {
       setIsLoading(false);
       setSnackbarVisibility(false);
       try {
         const payload = {
-          items: listadoItems.map(({ categoria, descripcion }) => ({
+          items: listadoItems.map(({ categoria, descripcion, cantidad }) => ({
             categoria,
-            descripcion
+            descripcion,
+            cantidad
           }))
         };
-        await DonationsRequestService.crearSolicitudDeDonacion(authToken, payload);
+        await DonationOfferService.crearOfrecimientoDeDonacion(authToken, payload);
         setLoadingScreen({
-          message: "Generando solicitud de donación",
+          message: "Generando ofrecimiento de donación",
           duration: 2100,
         }),
         setIsLoading(true),
         setSnackbar({
-          message: "Solicitud de donación creada con éxito!",
+          message: "Ofrecimiento de donación creado con éxito!",
           status: "success"
         }),
         setTimeout(() => {
@@ -83,7 +85,7 @@ export default function RequestDonation() {
         // eslint-disable-next-line no-unused-vars
       } catch (error) {
         setSnackbar({
-          message: "Error al crear la solicitud!",
+          message: "Error al crear el ofrecimiento!",
           status: "error"
         })
         setSnackbarVisibility(true);
@@ -101,13 +103,13 @@ export default function RequestDonation() {
     <div className={styles.mainContainer}>
       <div className={styles.container}>
         <Card elevation={5} sx={{display:"flex", flexDirection:"column", padding:"20px", gap:"30px"}}>
-          <h1>Crear nueva solicitud de donación </h1>
+          <h1>Crear nuevo ofrecimiento de donación </h1>
           <TextField
               select
               label="Categoría"
               size='small'
-              value={itemDonacion.categoria}
-              onChange={(e) => setItemDonacion({...itemDonacion, categoria: e.target.value})}
+              value={itemOfrecimiento.categoria}
+              onChange={(e) => setItemOfrecimiento({...itemOfrecimiento, categoria: e.target.value})}
               slotProps={{
                   input: {
                       startAdornment: (
@@ -128,8 +130,25 @@ export default function RequestDonation() {
             id=""
             label="Descripción"
             size='small'
-            value={itemDonacion.descripcion}
-            onChange={(e) => setItemDonacion({...itemDonacion, descripcion: e.target.value})}
+            value={itemOfrecimiento.descripcion}
+            onChange={(e) => setItemOfrecimiento({...itemOfrecimiento, descripcion: e.target.value})}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <DescriptionIcon />
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+          <TextField
+            id=""
+            label="Cantidad"
+            size='small'
+            type='number'
+            value={itemOfrecimiento.cantidad}
+            onChange={(e) => setItemOfrecimiento({...itemOfrecimiento, cantidad: e.target.value})}
             slotProps={{
               input: {
                 startAdornment: (
@@ -146,9 +165,9 @@ export default function RequestDonation() {
             startIcon={<AddCircleOutlineIcon />}
             sx={{ fontWeight: "bold" }}
             onClick={agregarItemAListado}
-            disabled={!datosCompletos(itemDonacion)}
+            disabled={!datosCompletos(itemOfrecimiento)}
           >
-            Agregar solicitud
+            Agregar ofrecimiento
           </Button>
         </Card>
       </div>
@@ -161,7 +180,7 @@ export default function RequestDonation() {
             startIcon={<FileUploadIcon />}
             sx={{ fontWeight: "bold", width:"50%", alignSelf:"center" }}
             disabled={listadoItems.length === 0}
-            onClick={()=> {generateDonationRequest(listadoItems)}}
+            onClick={()=> {generateDonationOffer(listadoItems)}}
           >
             Cargar items
           </Button>
@@ -198,12 +217,25 @@ export default function RequestDonation() {
                 >
                   Descripción
                 </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    color: "white",
+                    fontWeight: "Bold",
+                    borderLeft: "solid black 2px",
+                    borderTop: "solid black 2px",
+                    borderBottom: "solid black 2px",
+                    borderRight: "solid black 2px",
+                  }}
+                >
+                  Cantidad
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {listadoItems.length === 0 ? (
                 <TableRow>
-                  <TableCell align="center" colSpan={2} sx={{ color: "red", fontWeight: "bold", fontSize:"20px" }}>
+                  <TableCell align="center" colSpan={3} sx={{ color: "red", fontWeight: "bold", fontSize:"20px" }}>
                     No hay items agregados a la lista
                   </TableCell>
                 </TableRow>
@@ -226,6 +258,14 @@ export default function RequestDonation() {
                       border: "solid black 2px",
                     }}>
                       {item.descripcion}
+                    </TableCell>
+                     <TableCell align="center" 
+                    sx={{
+                      color: "black",
+                      fontWeight: "Bold",
+                      border: "solid black 2px",
+                    }}>
+                      {item.cantidad}
                     </TableCell>
                   </TableRow>
                 )

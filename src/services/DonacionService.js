@@ -19,6 +19,15 @@ class DonacionService {
       },
     });
   }
+
+   //Listar donaciones de un evento:
+  solicitudesDeDonacionesInternas(authToken) {
+    return axios.get(`${Constants.BASE_URL}/solicitudes-donaciones/internas`, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
+  }
 }
 
 export default new DonacionService();

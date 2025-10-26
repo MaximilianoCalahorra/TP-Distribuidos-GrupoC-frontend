@@ -11,3 +11,8 @@ export { default as ExternalSolidarityEvents } from './ExternalSolidarityEvents/
 export { default as Donations } from './Donations/Donations'
 export { default as RequestDonation } from './RequestDonation/RequestDonation'
 export { default as ExternalDonations } from './ExternalDonations/ExternalDonations'
+export { default as DonationsOffers } from './DonationsOffers/DonationsOffers'
+export { default as ManageDonationOffer } from './ManageDonationOffer/ManageDonationOffer'
+export { default as ExternalDonationsOffers } from './ExternalDonationsOffers/ExternalDonationsOffers'
+export { default as OutcomingTransfers } from './OutcomingTransfers/OutcomingTransfers'
+export { default as IncomingTransfers } from './IncomingTransfers/IncomingTransfers'

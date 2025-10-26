@@ -10,7 +10,6 @@ class SolidarityEventService {
     });
   }
   crearEventoSolidario(payload, authToken) {
-    console.log(payload);
     return axios.post(`${Constants.BASE_URL}/eventos-solidarios`, payload, {
       headers: {
         Authorization: `Basic ${authToken}`,

@@ -4,3 +4,4 @@ export { default as Header } from './Header/Header';
 export { default as LoadingScreen } from './LoadingScreen/LoadingScreen';
 export { default as Page } from './Page/Page';
 export { default as Snackbar } from './Snackbar/Snackbar';
+export { default as TransferItemsDialog } from './Dialogs/TransferItemsDialog';

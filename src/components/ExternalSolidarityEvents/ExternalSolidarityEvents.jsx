@@ -14,8 +14,7 @@ import styles from "./styles.module.css";
 import { LoadingScreen, Snackbar } from "../UI/index"
 import { useSelector } from '../../store/userStore';
 import SolidarityEventService from "../../services/SolidarityEventService";
-import { formatProtoTimestamp } from "../../Utils/Utils";
-import DonacionService from "../../services/DonacionService";
+import {authUserIsPresent, formatProtoTimestamp } from "../../Utils/Utils";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import ExternalEventsService from "../../services/ExternalEventsService";
@@ -24,6 +23,8 @@ dayjs.extend(customParseFormat);
 export default function ExternalSolidarityEvents() {
   const [membersList, setMembersList] = useState([]);
   const authToken = useSelector((state) => state.authToken)
+  const userAuthenticated = useSelector((state) => state.username)
+  const userEmail = useSelector((state) => state.userEmail)
   const [reload, setReload] = useState (true);
   const [solidarityEvents, setSolidarityEvents] = useState([]);
   const [snackbarVisibility, setSnackbarVisibility] = useState (false);
@@ -52,16 +53,22 @@ export default function ExternalSolidarityEvents() {
     setShowMemberList(false);
   }
   const openMembersList = (miembros) => {
-    setShowMemberList(true);
+    console.log("Puto: " + miembros)
     setMembersList(miembros);
+    setShowMemberList(true);
   }
 
-  const participateInSolidarityEvent = async (idSolidarityEvent) => {
+  const participateInSolidarityEvent = async (idEventoOrigen, idOrganization) => {
       setIsLoading(false);
       setSnackbarVisibility(false);
-      await SolidarityEventService.participarDeEventoSolidario(authToken, idSolidarityEvent);
+      const payload = {
+        idEvento: idEventoOrigen,
+        idOrganizador: idOrganization,
+        emailParticipante: userEmail
+      }
+      await ExternalEventsService.participarDeEventoSolidarioExterno(authToken, payload);
       setLoadingScreen({
-        message: "Inscribiendote en el evento",
+        message: "Inscribiendote en el evento externo",
         duration: 2200,
       }),
       setIsLoading(true),
@@ -97,14 +104,14 @@ export default function ExternalSolidarityEvents() {
     }
 
     useEffect (() => {
-        if (reload) {
-            const getUsers = async () => {
-                const response = await ExternalEventsService.listarEventosExternos(authToken);
-                setSolidarityEvents(response.data.eventos);
-            }
-            getUsers();
-            setReload(false);
-        }
+      if (reload) {
+          const getUsers = async () => {
+              const response = await ExternalEventsService.listarEventosExternos(authToken);
+              setSolidarityEvents(response.data.eventos);
+          }
+          getUsers();
+          setReload(false);
+      }
     }, [reload]);
 
   const eventoPasado = (fecha) => {
@@ -187,7 +194,7 @@ export default function ExternalSolidarityEvents() {
                         <Button
                           variant="contained"
                           sx={{ backgroundColor: "purple", fontWeight: "bold" }}
-                          onClick={()=> {openMembersList (solidarityEvent.miembros)}}
+                          onClick={()=> {openMembersList (solidarityEvent.participantesInternos)}}
                         >
                           Listado
                         </Button>
@@ -198,9 +205,9 @@ export default function ExternalSolidarityEvents() {
                             fontWeight: "bold" 
                           }}
                           onClick={() => {openEventAlert(solidarityEvent, "Alta")}}
-                          disabled={eventoPasado(formatProtoTimestamp(solidarityEvent.fechaHora))}
+                          disabled={eventoPasado(formatProtoTimestamp(solidarityEvent.fechaHora)) || authUserIsPresent(solidarityEvent.participantesInternos, userAuthenticated)}
                         >
-                          {"Participar"}
+                          Participar
                         </Button>
                       </div>
                     </TableCell>
@@ -213,7 +220,7 @@ export default function ExternalSolidarityEvents() {
       </Card>
       <AlertDialog
         mostrarAlerta={showEventAlert}
-        accion={() => { action == "Baja" ? unsuscribeFromSolidarityEvent(selectedSolidarityEvent.idEventoSolidario) : participateInSolidarityEvent(selectedSolidarityEvent.idEventoSolidario)}}
+        accion={() => { action == "Baja" ? unsuscribeFromSolidarityEvent(selectedSolidarityEvent.idEventoSolidario) : participateInSolidarityEvent(selectedSolidarityEvent.idEventoOrigen, selectedSolidarityEvent.idOrganizacion)}}
         closeAlerta={closeEventAlert}
         mensajeAlerta={action == "Baja" ? "Estás a punto de darte de baja del evento solidario externo: " + selectedSolidarityEvent.nombre  : "Estás a punto de confirmar tu asistencia al evento solidario externo: " + selectedSolidarityEvent.nombre}
       />
