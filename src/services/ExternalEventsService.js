@@ -9,6 +9,13 @@ class ExternalEventsService {
       },
     });
   }
+  participarDeEventoSolidarioExterno(authToken, payload) {
+    return axios.post(`${Constants.BASE_URL}/eventos-externos/participante-interno`, payload, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
+  }
 }
 
 export default new ExternalEventsService();

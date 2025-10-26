@@ -8,108 +8,82 @@ import {
   TableBody,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import AlertDialog from "../UI/Dialogs/AlertaDialog";
+import { ListDialog, TransferItemsDialog } from "../UI/index"
 import styles from "./styles.module.css";
 import InventarioService from "../../services/InventarioService";
-import { LoadingScreen, Snackbar } from "../UI/index"
 import { useSelector } from '../../store/userStore';
+import DonationsRequestService from "../../services/DonationsRequestService";
+import { disableTransfer, getInventoriesSelected } from "../../Utils/Utils";
 
 export default function ExternalDonations() {
-  const [showAlert, setShowAlert] = useState(false);
-  const [inventarios, setInventarios] = useState([]);
+
+  const [solicitudesDeDonacionesExternas, setSolicitudesExternas] = useState([]);
   const [reload, setReload] = useState (true);
-  const [inventarioSeleccionado, setInventarioSeleccionado] = useState(null);
+  const [inventarios, setInventarios] = useState([]);
+  const [inventoriesSelected, setInventoriesSelected] = useState([]);
+
+  const [idSolicitud, setIdSolicitud] = useState("");
+  const [idOrganizacion, setIdOrganizacion] = useState("");
+  const [items, setItems] = useState ([]);
+  const [showItemsList, setShowItemsList] = useState(false);
+  const closeItemsList = () => {
+    setShowItemsList(false);
+  }
+  const openItemsList = (donationRequest) => {
+    setItems(donationRequest.items);
+    setShowItemsList(true);
+  }
+
+  const [showTransferItemsList, setShowTransferItemsList] = useState(false);
+  const closeTransferItemsList = () => {
+    setShowTransferItemsList(false);
+  }
+  const openTransferItemsList = (donationRequest, inventories) => {
+    setIdSolicitud(donationRequest.idSolicitudDonacionOrigen)
+    setIdOrganizacion(donationRequest.idOrganizacion)
+    setItems(donationRequest.items);
+    setInventoriesSelected(inventories);
+    setShowTransferItemsList(true);
+  }
+
   const authToken = useSelector((state) => state.authToken)
-  const [snackbarVisibility, setSnackbarVisibility] = useState (false);
-  const [snackbar, setSnackbar] = useState({
-    status: "",
-    message: "",
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingScreen, setLoadingScreen] = useState({
-    message: "",
-    duration: null,
-  });
-  
-  //Cerrar alerta:
-  const closeAlert = () => {
-    setShowAlert(false);
-    setInventarioSeleccionado(null); //Restablecemos el inventario seleccionado.
-  }
-
-  //Abrir alerta:
-  const openAlert = (inventario) => {
-    setInventarioSeleccionado(inventario); //Guardamos el inventario seleccionado.
-    setShowAlert(true);
-  }
-
-  //Obtener inventarios:
-  const fetchInventarios = async () => {
+  //Obtener solicitudes de donaciones externas:
+  const fetchSolicitudesDeDonacionesExternas = async () => {
     try {
-      const response = await InventarioService.listarInventarios(authToken);
-      setInventarios(response.data.inventarios); //Seteamos los inventarios de la página con la respuesta del cliente gRPC.
+      const response = await DonationsRequestService.listarSolicitudesDeDonacionesExternas(authToken);
+      setSolicitudesExternas(response.data.solicitudes); //Seteamos las solicitudes de donaciones externas de la página con la respuesta del cliente gRPC.
     } catch (error) {
-      console.error("Error al obtener inventarios:", error.response?.data || error.message);
+      console.error("Error al obtener las solicitudes de donaciones internas:", error.response?.data || error.message);
     }
   }
 
-  //Cargar los inventarios en el primer renderizado de la página:
+  //Cargar las solicitudes de donaciones internas en el primer renderizado de la página:
   useEffect(() => {
     if (reload) {
-      fetchInventarios();
+      fetchSolicitudesDeDonacionesExternas();
       setReload(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reload]);
 
-  //Manejador de activar/deshabilitar inventario:
-  const handleToggleInventario = async () => {
-    if (!inventarioSeleccionado) return;
-    setIsLoading(false);
-    setSnackbarVisibility(false);
-    try {
-      //Si el inventario está desactivado:
-      if (inventarioSeleccionado.eliminado) {
-        await InventarioService.habilitarInventario(inventarioSeleccionado.idInventario, authToken); //Lo activa.
-        setLoadingScreen({
-          message: "Habilitando inventario",
-          duration: 2200,
-        }),
-        setIsLoading(true),
-        setSnackbar({
-          message: "Inventario habilitado con éxito!",
-          status: "success"
-        }),
-        setTimeout(() => {
-          setReload(true);
-          closeAlert();
-          setSnackbarVisibility(true);
-        }, 2000)
-      } else { //Está desactivado
-        await InventarioService.eliminarLogicoInventario(inventarioSeleccionado.idInventario, authToken); //Lo desactiva
-        setLoadingScreen({
-          message: "Deshabilitando inventario",
-          duration: 2200,
-        }),
-        setIsLoading(true),
-        setSnackbar({
-          message: "Inventario deshabilitado con éxito!",
-          status: "success"
-        }),
-        setTimeout(() => {
-          setReload(true);
-          closeAlert();
-          setSnackbarVisibility(true);
-        }, 2000)
+  //Obtener inventarios:
+    const fetchInventarios = async () => {
+      try {
+        const response = await InventarioService.listarInventarios(authToken);
+        setInventarios(response.data.inventarios); //Seteamos los inventarios de la página con la respuesta del cliente gRPC.
+      } catch (error) {
+        console.error("Error al obtener inventarios:", error.response?.data || error.message);
       }
-
-      fetchInventarios(); //Recarga los inventarios en la vista.
-    } catch (error) {
-      console.error("Error al cambiar el estado del inventario:", error);
-    } finally {
-      closeAlert();
     }
-  };
+  
+    //Cargar los inventarios en el primer renderizado de la página:
+    useEffect(() => {
+      if (reload) {
+        fetchInventarios();
+        setReload(false);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [reload]);
 
   return (
     <div className={styles.mainContainer}>
@@ -133,21 +107,10 @@ export default function ExternalDonations() {
                   borderLeft: "solid black 2px",
                   borderTop: "solid black 2px",
                   borderBottom: "solid black 2px",
+                  width:"50%"
                 }}
               >
-                Categoría
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{
-                  color: "white",
-                  fontWeight: "Bold",
-                  borderLeft: "solid black 2px",
-                  borderTop: "solid black 2px",
-                  borderBottom: "solid black 2px",
-                }}
-              >
-                Descripción
+                Organización
               </TableCell>
               <TableCell
                 align="center"
@@ -165,31 +128,23 @@ export default function ExternalDonations() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {inventarios.length === 0 ? (
+            {solicitudesDeDonacionesExternas.length === 0 ? (
               <TableRow>
                 <TableCell align="center" colSpan={3} sx={{ color: "red", fontWeight: "bold", fontSize:"20px" }}>
                   No hay solicitudes de donaciones externas registradas
                 </TableCell>
               </TableRow>
             ) :
-            (inventarios.map((inventario) => {
+            (solicitudesDeDonacionesExternas.map((solicitudDeDonacion) => {
               return (
-                <TableRow key={inventario.idInventario}>
+                <TableRow key={solicitudDeDonacion.idInventario}>
                   <TableCell align="center" 
                   sx={{
                     color: "black",
                     fontWeight: "Bold",
                     border: "solid black 2px",
                   }}>
-                    {inventario.categoria}
-                  </TableCell>
-                  <TableCell  align="center" 
-                  sx={{
-                    color: "black",
-                    fontWeight: "Bold",
-                    border: "solid black 2px",
-                  }}>
-                    {inventario.descripcion}
+                    {solicitudDeDonacion.idOrganizacion}
                   </TableCell>
                   <TableCell align="center"
                   sx={{
@@ -199,13 +154,21 @@ export default function ExternalDonations() {
                     width: "50px",
                   }}>
                     <div className={styles.actionsContainer}>
+                       <Button
+                        variant="contained"
+                        sx={{ backgroundColor: "purple", fontWeight: "bold" }}
+                        onClick={() => {openItemsList(solicitudDeDonacion)}}
+                      >
+                        Items solicitados
+                      </Button>
                       <Button
                         variant="contained"
                         color="primary"
                         sx={{ fontWeight: "bold" }}
-                        onClick={() => {openAlert (inventario)}}
+                        onClick={() => {openTransferItemsList(solicitudDeDonacion, getInventoriesSelected(inventarios, solicitudDeDonacion.items))}}
+                        disabled={!disableTransfer(inventarios, solicitudDeDonacion.items)}
                       >
-                        Realizar donacion
+                        Crear Transferencia
                       </Button>
                     </div>
                   </TableCell>
@@ -215,25 +178,21 @@ export default function ExternalDonations() {
           </TableBody>
         </Table>
       </Card>
-      <AlertDialog
-        mostrarAlerta={showAlert}
-        accion={handleToggleInventario}
-        closeAlerta={closeAlert}
-        mensajeAlerta={`Vas a cancelar la solicitud de ${inventarioSeleccionado?.descripcion}`}
+       <ListDialog
+        mostrarAlerta={showItemsList}
+        elementos={items}
+        closeAlerta={closeItemsList}
+        tipoListado={"items"}
       />
-      {snackbarVisibility && (
-        <Snackbar
-          status={snackbar.status}
-          message={snackbar.message}
-          visibility={snackbarVisibility}
-        />
-      )} 
-      {isLoading && (
-        <LoadingScreen
-          message={loadingScreen.message}
-          duration={loadingScreen.duration}
-        />
-      )} 
+      <TransferItemsDialog
+        mostrarAlerta={showTransferItemsList}
+        idSolicitud={idSolicitud}
+        idOrganizacion={idOrganizacion}
+        elementos={items ?? []}
+        inventarios={inventoriesSelected ?? []}
+        closeAlerta={closeTransferItemsList}
+        onTransferred={() => setReload(true)}
+      />
     </div>
   );
 }

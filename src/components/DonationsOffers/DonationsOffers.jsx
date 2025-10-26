@@ -14,55 +14,37 @@ import { ListDialog, AlertaDialog, Snackbar, LoadingScreen } from "../UI/index"
 import { useSelector } from '../../store/userStore';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import LanguageIcon from '@mui/icons-material/Language';
-import DonationsRequestService from "../../services/DonationsRequestService";
+import DonationsOfferService from "../../services/DonationsOfferService";
 
-export default function Donations() {
+export default function DonationsOffers() {
   const navigate = useNavigate();
-  const [solicitudesDeDonacionesInternas, setSolicitudesDeDonacionesInternas] = useState([]);
+  const [ofrecimientosDeDonacionesInternos, setOfrecimientosDeDonacionesInternos] = useState([]);
   const [reload, setReload] = useState (true);
-
-  const [snackbarVisibility, setSnackbarVisibility] = useState (false);
-  const [snackbar, setSnackbar] = useState({
-    status: "",
-    message: "",
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingScreen, setLoadingScreen] = useState({
-    message: "",
-    duration: null,
-  });
-
   
-  const [selectedRequest, setSelectedRequest] = useState([]);
-  const [showDisableRequestAlert, setShowDisableRequestAlert] = useState(false);
-  const closeDisableRequestAlert = () => setShowDisableRequestAlert(false);
-  const openDisableRequestAlert = (donationRequest) => {
-    setSelectedRequest(donationRequest);
-    setShowDisableRequestAlert(true);
-  }
+  //const [selectedDonationOffer, setSelectedDonationOffer] = useState([]);
   
   const [items, setItems] = useState ([]);
   const [showItemsList, setShowItemsList] = useState(false);
   const closeItemsList = () => {
     setShowItemsList(false);
   }
-  const openItemsList = (donationRequest) => {
-    setItems(donationRequest.items);
+  const openItemsList = (donationOffer) => {
+    setItems(donationOffer.items);
     setShowItemsList(true);
   }
   
   const authToken = useSelector((state) => state.authToken)
-  //Obtener solicitudes de donaciones internas:
+  //Obtener ofrecimientos de donaciones internos:
   const fetchSolicitudesDeDonacionesInternas = async () => {
     try {
-      const response = await DonationsRequestService.listarSolicitudesDeDonacionesInternas(authToken);
-      setSolicitudesDeDonacionesInternas(response.data.solicitudes); //Seteamos las solicitudes de donaciones internas de la página con la respuesta del cliente gRPC.
+      const response = await DonationsOfferService.listarOfrecimientosDeDonacionesInternos(authToken);
+      setOfrecimientosDeDonacionesInternos(response.data.ofertas); //Seteamos los ofrecimientos de donaciones internos de la página con la respuesta del cliente gRPC.
     } catch (error) {
-      console.error("Error al obtener las solicitudes de donaciones internas:", error.response?.data || error.message);
+      console.error("Error al obtener los ofrecimientos de donaciones internos:", error.response?.data || error.message);
     }
   }
 
-  //Cargar las solicitudes de donaciones internas en el primer renderizado de la página:
+  //Cargar los ofrecimientos de donaciones internos en el primer renderizado de la página:
   useEffect(() => {
     if (reload) {
       fetchSolicitudesDeDonacionesInternas();
@@ -70,49 +52,29 @@ export default function Donations() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reload]);
-
-  const eliminarSolicitudDeDonacion = async (idDonationRequest) => {
-    setIsLoading(false);
-    setSnackbarVisibility(false);
-    await DonationsRequestService.eliminarSolicitudDeDonacion(authToken, idDonationRequest);
-    setLoadingScreen({
-      message: "Eliminando solicitud de donación",
-      duration: 2200,
-    }),
-    setIsLoading(true),
-    setSnackbar({
-      message: "Solicitud de donación eliminada con éxito!",
-      status: "success"
-    }),
-    setTimeout(() => {
-      setReload(true);
-      closeDisableRequestAlert();
-      setSnackbarVisibility(true);
-    }, 2000)
-  }
   
   return (
     <div className={styles.mainContainer}>
       <div className={styles.titleContainer}>
-        <h1>Solicitudes de donaciones</h1>
+        <h1>Ofrecimientos de donaciones</h1>
         <div className={styles.buttonsContainer}>
           <Button 
             variant="contained" 
             color="success" 
             sx={{ fontWeight: "bold" }} 
-            onClick={()=> {navigate("/donations/requestDonation")}}
+            onClick={()=> {navigate("/offersDonations/requestDonationOffer")}}
             startIcon={<AddCircleOutlineIcon/>}
           >
-            Registrar una nueva solicitud
+            Nuevo ofrecimiento
           </Button>
           <Button
             variant="contained"
             color="secondary"
             sx={{ fontWeight: "bold", marginLeft:"38%" }}
-            onClick={() => navigate("/donationsExt")}
+            onClick={() => navigate("/offersDonationsExt")}
             startIcon={<LanguageIcon/>}
           >
-            Solicitudes externas
+            Ofrecimientos externos
           </Button>
         </div>
       </div>
@@ -154,23 +116,23 @@ export default function Donations() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {solicitudesDeDonacionesInternas.length === 0 ? (
+            {ofrecimientosDeDonacionesInternos.length === 0 ? (
               <TableRow>
                 <TableCell align="center" colSpan={3} sx={{ color: "red", fontWeight: "bold", fontSize:"20px" }}>
-                  No hay solicitudes de donaciones registradas
+                  No hay ofrecimientos de donaciones registrados
                 </TableCell>
               </TableRow>
             ) :
-            (solicitudesDeDonacionesInternas.map((solicitudDeDonacion) => {
+            (ofrecimientosDeDonacionesInternos.map((ofrecimientoDeDonacion) => {
               return (
-                <TableRow key={solicitudDeDonacion.idInventario}>
+                <TableRow key={ofrecimientoDeDonacion.idInventario}>
                   <TableCell align="center" 
                   sx={{
                     color: "black",
                     fontWeight: "Bold",
                     border: "solid black 2px",
                   }}>
-                    {solicitudDeDonacion.idSolicitudDonacion}
+                    {ofrecimientoDeDonacion.idOfertaDonacion}
                   </TableCell>
                   <TableCell align="center"
                   sx={{
@@ -183,17 +145,9 @@ export default function Donations() {
                        <Button
                         variant="contained"
                         sx={{ backgroundColor: "purple", fontWeight: "bold" }}
-                        onClick={() => {openItemsList(solicitudDeDonacion)}}
+                        onClick={() => {openItemsList(ofrecimientoDeDonacion)}}
                       >
-                        Items solicitados
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="error"
-                        sx={{ fontWeight: "bold" }}
-                        onClick={() => {openDisableRequestAlert(solicitudDeDonacion)}}
-                      >
-                        Cancelar solicitud
+                        Items ofrecidos
                       </Button>
                     </div>
                   </TableCell>
@@ -203,31 +157,12 @@ export default function Donations() {
           </TableBody>
         </Table>
       </Card>
-      <AlertaDialog
-        mostrarAlerta={showDisableRequestAlert}
-        accion={() => {eliminarSolicitudDeDonacion(selectedRequest.idSolicitudDonacion)}}
-        closeAlerta={closeDisableRequestAlert}
-        mensajeAlerta={"Vas a eliminar la solicitud de donación: " + selectedRequest.idSolicitudDonacion}
-      />
       <ListDialog
         mostrarAlerta={showItemsList}
         elementos={items}
         closeAlerta={closeItemsList}
         tipoListado={"items"}
       />
-      {snackbarVisibility && (
-        <Snackbar
-          status={snackbar.status}
-          message={snackbar.message}
-          visibility={snackbarVisibility}
-        />
-      )} 
-      {isLoading && (
-        <LoadingScreen
-          message={loadingScreen.message}
-          duration={loadingScreen.duration}
-        />
-      )} 
     </div>
   );
 }

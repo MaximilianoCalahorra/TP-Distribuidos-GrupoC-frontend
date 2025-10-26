@@ -213,8 +213,17 @@ export default function SolidarityEvents() {
           </Button>
           <Button
             variant="contained"
+            color="primary"
+            sx={{ fontWeight: "bold", marginLeft:"24%" }}
+            onClick={() => navigate("/externalSolidarityEvents")}
+            startIcon={<LanguageIcon/>}
+          >
+            Mis eventos
+          </Button>
+          <Button
+            variant="contained"
             color="secondary"
-            sx={{ fontWeight: "bold", marginLeft:"38%" }}
+            sx={{ fontWeight: "bold", marginLeft:"8px"}}
             onClick={() => navigate("/externalSolidarityEvents")}
             startIcon={<LanguageIcon/>}
           >
