@@ -16,3 +16,5 @@ export { default as ManageDonationOffer } from './ManageDonationOffer/ManageDona
 export { default as ExternalDonationsOffers } from './ExternalDonationsOffers/ExternalDonationsOffers'
 export { default as OutcomingTransfers } from './OutcomingTransfers/OutcomingTransfers'
 export { default as IncomingTransfers } from './IncomingTransfers/IncomingTransfers'
+export { default as ONGs } from './ONGs/ONGs'
+export { default as Presidents } from './Presidents/Presidents'

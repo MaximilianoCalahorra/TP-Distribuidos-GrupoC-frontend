@@ -9,6 +9,8 @@ import FestivalIcon from '@mui/icons-material/Festival';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
+import Diversity2Icon from '@mui/icons-material/Diversity2';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { AppBar } from '@mui/material';
@@ -52,6 +54,18 @@ export default function Header() {
                 <Button color='white' startIcon={<FestivalIcon />} size={["/solidarityEvents", "/donations", "/externalSolidarityEvents"].some(path => location.pathname.startsWith(path)) ? "large" : "medium"} variant={["/solidarityEvents", "/donations", "/externalSolidarityEvents"].some(path => location.pathname.startsWith(path)) ? "outlined" : "text"} 
                 sx={{fontWeight: ["/solidarityEvents", "/externalSolidarityEvents"].some(path => location.pathname.startsWith(path)) ? "bold" : "normal"}} onClick={()=> {navigate("/solidarityEvents")}} className={styles.button}>
                   <Typography variant="" color='white'>Eventos solidarios</Typography>
+                </Button>
+              )}
+              {(userRol == Roles [0]) && (
+                <Button color='white' startIcon={<Diversity2Icon />} size={["/ongs"].some(path => location.pathname.startsWith(path)) ? "large" : "medium"} variant={["/ongs"].some(path => location.pathname.startsWith(path)) ? "outlined" : "text"} 
+                sx={{fontWeight: ["/ongs"].some(path => location.pathname.startsWith(path)) ? "bold" : "normal"}} onClick={()=> {navigate("/ongs")}} className={styles.button}>
+                  <Typography variant="" color='white'>ONGs</Typography>
+                </Button>
+              )}
+              {(userRol == Roles [0]) && (
+                <Button color='white' startIcon={<AssignmentIndIcon />} size={["/presidents"].some(path => location.pathname.startsWith(path)) ? "large" : "medium"} variant={["/presidents"].some(path => location.pathname.startsWith(path)) ? "outlined" : "text"} 
+                sx={{fontWeight: ["/presidents"].some(path => location.pathname.startsWith(path)) ? "bold" : "normal"}} onClick={()=> {navigate("/presidents")}} className={styles.button}>
+                  <Typography variant="" color='white'>Presidentes</Typography>
                 </Button>
               )}
             </div>
