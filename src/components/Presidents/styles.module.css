@@ -1,0 +1,14 @@
+.mainContainer {
+    padding-top: 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.titleContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%
+}
