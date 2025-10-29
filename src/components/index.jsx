@@ -18,3 +18,4 @@ export { default as OutcomingTransfers } from './OutcomingTransfers/OutcomingTra
 export { default as IncomingTransfers } from './IncomingTransfers/IncomingTransfers'
 export { default as ONGs } from './ONGs/ONGs'
 export { default as Presidents } from './Presidents/Presidents'
+export { default as MySolidarityEvents } from './MySolidarityEvents/MySolidarityEvents'
