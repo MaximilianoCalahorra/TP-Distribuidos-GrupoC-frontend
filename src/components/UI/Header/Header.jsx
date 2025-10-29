@@ -41,7 +41,7 @@ export default function Header() {
               {userRol == Roles [0] && (
                 <Button color='white' startIcon={<GroupIcon />} size={location.pathname.includes("/users") ? "large" : "medium"} variant={location.pathname.includes("/users") ? "outlined" : "text"} 
                 sx={{fontWeight: location.pathname.includes("/users")  ? "bold" : "normal"}} onClick={()=> {navigate("/users")}} className={styles.button}>
-                  <Typography variant="" color="">Gestión de usuarios</Typography>
+                  <Typography variant="" color="">Usuarios</Typography>
                 </Button>
               )}
               {(userRol == Roles [0] || userRol == Roles [1]) && (
@@ -51,9 +51,9 @@ export default function Header() {
                 </Button>
               )}
               {(userRol == Roles [0] || userRol == Roles [2] || userRol == Roles [3]) && (
-                <Button color='white' startIcon={<FestivalIcon />} size={["/solidarityEvents", "/donations", "/externalSolidarityEvents"].some(path => location.pathname.startsWith(path)) ? "large" : "medium"} variant={["/solidarityEvents", "/donations", "/externalSolidarityEvents"].some(path => location.pathname.startsWith(path)) ? "outlined" : "text"} 
-                sx={{fontWeight: ["/solidarityEvents", "/externalSolidarityEvents"].some(path => location.pathname.startsWith(path)) ? "bold" : "normal"}} onClick={()=> {navigate("/solidarityEvents")}} className={styles.button}>
-                  <Typography variant="" color='white'>Eventos solidarios</Typography>
+                <Button color='white' startIcon={<FestivalIcon />} size={["/solidarityEvents", "/donations", "/externalSolidarityEvents", "/mySolidarityEvents"].some(path => location.pathname.startsWith(path)) ? "large" : "medium"} variant={["/solidarityEvents", "/donations", "/externalSolidarityEvents", "/mySolidarityEvents"].some(path => location.pathname.startsWith(path)) ? "outlined" : "text"} 
+                sx={{fontWeight: ["/solidarityEvents", "/externalSolidarityEvents", "/mySolidarityEvents"].some(path => location.pathname.startsWith(path)) ? "bold" : "normal"}} onClick={()=> {navigate("/solidarityEvents")}} className={styles.button}>
+                  <Typography variant="" color='white'>Eventos</Typography>
                 </Button>
               )}
               {(userRol == Roles [0]) && (

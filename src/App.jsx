@@ -3,7 +3,7 @@ import {
   Login, ManageUsers, Page, Users, Inventories, ManageInventories, 
   SolidarityEvents, ManageSolidarityEvents, ManageDonations, ExternalSolidarityEvents, 
   Donations, RequestDonation, ExternalDonations, DonationsOffers, ManageDonationOffer,
-  ExternalDonationsOffers, OutcomingTransfers, IncomingTransfers, ONGs , Presidents
+  ExternalDonationsOffers, OutcomingTransfers, IncomingTransfers, ONGs , Presidents, MySolidarityEvents
 } from './components';
 const USERS_BASE_PATH = "/users";
 const INVENTORIES_BASE_PATH = "/inventories";
@@ -14,6 +14,7 @@ const DONATIONS_OFFERS_BASE_PATH = "/offersDonations"
 const DONATIONS_TRANSFERS_BASE_PATH = "/transfers"
 const ONGS_INFORMATION_BASE_PATH = "/ongs"
 const PRESIDENTS_INFORMATION_BASE_PATH = "/presidents"
+const MY_SOLIDARITY_EVENTS_BASE_PATH = "/mySolidarityEvents";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route path={`${DONATIONS_TRANSFERS_BASE_PATH}Outcoming`} element={<OutcomingTransfers />} />
           <Route path={`${ONGS_INFORMATION_BASE_PATH}`} element={<ONGs />} />
           <Route path={`${PRESIDENTS_INFORMATION_BASE_PATH}`} element={<Presidents />} />
+          <Route path={`${MY_SOLIDARITY_EVENTS_BASE_PATH}`} element={<MySolidarityEvents />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Page>

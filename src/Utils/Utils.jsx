@@ -87,3 +87,45 @@ export const getInventoryAmount = (inventories, item) => {
   console.log(inventories, item)
   return inventories.find(inv =>  inv?.categoria === item?.categoria && inv?.descripcion === item?.descripcion)
 }
+
+export const getMonth = (mes) => {
+  let parsedMonth;
+  switch (mes) {
+    case 1: parsedMonth = "Enero"
+    break;
+    case 2: parsedMonth = "Febrero"
+    break;
+    case 3: parsedMonth = "Marzo"
+    break;
+    case 4: parsedMonth = "Abril"
+    break;
+    case 5: parsedMonth = "Mayo"
+    break;
+    case 6: parsedMonth = "Junio"
+    break;
+    case 7: parsedMonth = "Julio"
+    break;
+    case 8: parsedMonth = "Agosto"
+    break;
+    case 9: parsedMonth = "Septiembre"
+    break;
+    case 10: parsedMonth = "Octubre"
+    break;
+    case 11: parsedMonth = "Noviembre"
+    break;
+    case 12: parsedMonth = "Diciembre"
+    break;
+  }
+  return parsedMonth;
+}
+
+export const formatearFecha = (fechaISO) => {
+  const fecha = new Date(fechaISO);
+  return fecha.toLocaleString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}

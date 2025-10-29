@@ -22,6 +22,7 @@ import { Roles } from "../../constants/Roles";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import LanguageIcon from '@mui/icons-material/Language';
+import PersonIcon from '@mui/icons-material/Person';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 dayjs.extend(customParseFormat);
 
@@ -215,8 +216,8 @@ export default function SolidarityEvents() {
             variant="contained"
             color="primary"
             sx={{ fontWeight: "bold", marginLeft:"24%" }}
-            onClick={() => navigate("/externalSolidarityEvents")}
-            startIcon={<LanguageIcon/>}
+            onClick={() => navigate("/mySolidarityEvents")}
+            startIcon={<PersonIcon/>}
           >
             Mis eventos
           </Button>
