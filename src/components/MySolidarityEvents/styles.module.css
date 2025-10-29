@@ -44,3 +44,10 @@
     align-self: first baseline;
     gap: 5px;
 }
+
+.tableContainer {
+    width: 98%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}

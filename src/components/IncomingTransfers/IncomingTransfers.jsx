@@ -7,17 +7,24 @@ import {
   Button,
   TableBody,
   MenuItem,
-  TextField
+  TextField,
+  Chip, 
+  Stack,
+  IconButton
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useState } from "react";
 import styles from "./styles.module.css";
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { useSelector } from '../../store/userStore';
+import LanguageIcon from '@mui/icons-material/Language';
 import TransfersService from "../../services/TransfersService";
 import FeedIcon from '@mui/icons-material/Feed';
 import DownloadIcon from '@mui/icons-material/Download';
 import { Categorias } from '../../constants/Categorias'
+import { AlertaDialog, Snackbar, LoadingScreen, EditTransfersFilterDialog } from "../UI/index"
 
 export default function IncomingTransfers() {
   const [transferenciasEntrantes, setTransferenciasEntrantes] = useState([]);
@@ -34,6 +41,32 @@ export default function IncomingTransfers() {
   const [filename, setFilename] = useState("donaciones.xlsx");
   const [filterName, setFilterName] = useState("");
   const [myFilters, setMyFilters] = useState([]);
+
+  const [snackbarVisibility, setSnackbarVisibility] = useState (false);
+  const [snackbar, setSnackbar] = useState({
+    status: "",
+    message: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingScreen, setLoadingScreen] = useState({
+    message: "",
+    duration: null,
+  });
+
+  const [selectedFilter, setSelectedFilter] = useState([]);
+  const [showRemoveFilterAlert, setShowRemoveFilterAlert] = useState(false);
+  const closeRemoveFilterAlert = () => setShowRemoveFilterAlert(false);
+  const openRemoveFilterAlert = (filter) => {
+    setSelectedFilter(filter);
+    setShowRemoveFilterAlert(true);
+  }
+
+  const [showEditFilterAlert, setShowEditFilterAlert] = useState(false);
+  const closeEditFilterAlert = () => setShowEditFilterAlert(false);
+  const openEditFilterAlert = (filter) => {
+    setSelectedFilter(filter);
+    setShowEditFilterAlert(true);
+  }
 
   useEffect(() => {
     return () => {
@@ -81,22 +114,40 @@ export default function IncomingTransfers() {
       nombreFiltro: filterName
     }
     try {
+      setIsLoading(false);
+      setSnackbarVisibility(false);
       await TransfersService.crearFiltro(authToken, input);
-      setFilterName("");
-      setReload2(true);
-      setFiltros({
-      categoria: "TODAS",
-      fechaHoraAltaDesde: "",
-      fechaHoraAltaHasta: "",
-      eliminado: "NO",
-      tipoTransferencia: "ENTRANTE"
-    })
+      setLoadingScreen({
+        message: "Creando filtro",
+        duration: 2200,
+      }),
+      setIsLoading(true),
+      setSnackbar({
+        message: "Filtro creado con éxito!",
+        status: "success"
+      }),
+      setTimeout(() => {
+        setReload2(true);
+        setSnackbarVisibility(true);
+        setFilterName("");
+        setFiltros({
+          categoria: "TODAS",
+          fechaHoraAltaDesde: "",
+          fechaHoraAltaHasta: "",
+          eliminado: "NO",
+          tipoTransferencia: "ENTRANTE"
+        })
+      }, 2000)
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
-      console.error("Error al obtener las transferencias entrantes:", error.response?.data || error.message);
+      setSnackbar({
+        message: "El filtro ya está creado!",
+        status: "error"
+      })
     }
   }
 
-  //Cargar las transferencias entrantes en el primer renderizado de la página:
+  //Cargar las transferencias salientes en el primer renderizado de la página:
   useEffect(() => {
     if (reload) {
       fetchTransferenciasEntrantes();
@@ -105,10 +156,34 @@ export default function IncomingTransfers() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reload]);
 
-   const fetchFiltrosGuardados = async () => {
+  const fetchFiltrosGuardados = async () => {
     try {
       const response = await TransfersService.obtenerFiltros(authToken);
       setMyFilters(response.data.data.filtrosDonacionUsuario);
+    } catch (error) {
+      console.error("Error al obtener las transferencias entrantes:", error.response?.data || error.message);
+    }
+  }
+
+  const eliminarFiltro = async (idFiltro) => {
+    try {
+      setIsLoading(false);
+      setSnackbarVisibility(false);
+      await TransfersService.eliminarFiltro(authToken, idFiltro);
+      setLoadingScreen({
+        message: "Eliminando filtro",
+        duration: 2200,
+      }),
+      setIsLoading(true),
+      setSnackbar({
+        message: "Filtro eliminado con éxito!",
+        status: "success"
+      }),
+      setTimeout(() => {
+        setReload2(true);
+        setSnackbarVisibility(true);
+        closeRemoveFilterAlert();
+      }, 2000)
     } catch (error) {
       console.error("Error al obtener las transferencias entrantes:", error.response?.data || error.message);
     }
@@ -269,15 +344,30 @@ export default function IncomingTransfers() {
         {myFilters.length === 0 ? (
           <h5 style={{color:"red"}}>No hay filtros guardados</h5>
         ) : (myFilters.map((filter) => (
-            <Button
-              key={filter.idFiltroDonacion ?? filter.nombreFiltro}
-              variant="contained"
-              color="secondary"
-              sx={{ fontWeight: "bold" }}
+          <Stack direction="row" spacing={1}>
+            <Chip
+              label={filter.nombreFiltro}
+              sx={{
+                backgroundColor: "#9c27b0",
+                color: "white",
+                fontWeight: "bold",
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "#a15eadff",
+                  boxShadow: "none",          
+                },
+                "& .MuiChip-label": {
+                  cursor: "inherit",
+                },
+              }}
+              onDelete={()=> {openRemoveFilterAlert(filter)}}
               onClick={() => {establecerFiltro(filter)}}
-            >
-              {filter.nombreFiltro}
-            </Button> 
+              deleteIcon={<CloseIcon sx={{ color: "white" }} />}
+            />
+            <IconButton size="small" onClick={()=> {openEditFilterAlert (filter)}}>
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Stack>
         )))}
       </div>
       <Card elevation={15} sx={{ width: "98%" }}>
@@ -331,7 +421,7 @@ export default function IncomingTransfers() {
             {transferenciasEntrantes.length === 0 ? (
               <TableRow>
                 <TableCell align="center" colSpan={3} sx={{ color: "red", fontWeight: "bold", fontSize:"20px" }}>
-                  No hay transferencias entrantes registradas
+                  No hay transferencias salientes registradas
                 </TableCell>
               </TableRow>
             ) :
@@ -368,6 +458,31 @@ export default function IncomingTransfers() {
           </TableBody>
         </Table>
       </Card>
+      <AlertaDialog
+        mostrarAlerta={showRemoveFilterAlert}
+        accion={() => {eliminarFiltro(selectedFilter.idFiltroDonacion)}}
+        closeAlerta={closeRemoveFilterAlert}
+        mensajeAlerta={"Vas a eliminar tu filtro personalizado: " + selectedFilter.nombreFiltro}
+      />
+       <EditTransfersFilterDialog
+        mostrarAlerta={showEditFilterAlert}
+        closeAlerta={closeEditFilterAlert}
+        filtro={selectedFilter}
+        onEdited={()=> {setReload2(true)}}
+      />
+      {snackbarVisibility && (
+        <Snackbar
+          status={snackbar.status}
+          message={snackbar.message}
+          visibility={snackbarVisibility}
+        />
+      )} 
+      {isLoading && (
+        <LoadingScreen
+          message={loadingScreen.message}
+          duration={loadingScreen.duration}
+        />
+      )} 
     </div>
   );
 }

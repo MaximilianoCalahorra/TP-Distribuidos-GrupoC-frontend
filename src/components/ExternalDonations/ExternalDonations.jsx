@@ -112,6 +112,19 @@ export default function ExternalDonations() {
               >
                 Organización
               </TableCell>
+               <TableCell
+                align="center"
+                sx={{
+                  color: "white",
+                  fontWeight: "Bold",
+                  borderLeft: "solid black 2px",
+                  borderTop: "solid black 2px",
+                  borderBottom: "solid black 2px",
+                  width:"50%"
+                }}
+              >
+                Solicitud
+              </TableCell>
               <TableCell
                 align="center"
                 sx={{
@@ -145,6 +158,14 @@ export default function ExternalDonations() {
                     border: "solid black 2px",
                   }}>
                     {solicitudDeDonacion.idOrganizacion}
+                  </TableCell>
+                  <TableCell align="center" 
+                  sx={{
+                    color: "black",
+                    fontWeight: "Bold",
+                    border: "solid black 2px",
+                  }}>
+                    {solicitudDeDonacion.idSolicitudDonacionOrigen}
                   </TableCell>
                   <TableCell align="center"
                   sx={{

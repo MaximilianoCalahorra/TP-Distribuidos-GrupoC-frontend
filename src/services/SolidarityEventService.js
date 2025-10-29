@@ -58,6 +58,76 @@ class SolidarityEventService {
       },
     });
   }
+    /**
+   * Llama al resolver informeParticipacionEventos(filtro)
+   * @param {string} authToken 
+   * @param {object} filtro     
+   */
+  obtenerInformeEventosSolidarios(authToken, filtro) {
+    const query = `
+      query InformeParticipacionEventos($filtroJson: String!) {
+        informeParticipacionEventos(filtroJson: $filtroJson) {
+          mes
+          eventos {
+            dia
+            nombreEvento
+            descripcion
+            repartoDonaciones
+          }
+        }
+      }
+    `;
+
+    const variables = {
+      filtroJson: JSON.stringify(filtro),
+    };
+
+    return axios.post(
+      `${Constants.BASE_URL_GRAPHQL}/graphql`,
+      {
+        query,
+        variables,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+           Authorization: `Basic ${authToken}`,
+        },
+      }
+    );
+  }
+
+  obtenerFiltros(authToken) {
+    return axios.get(`${Constants.BASE_URL_REST}/api/v1/filtros-eventos`, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
+  }
+
+  crearFiltro(authToken, payload) {
+    return axios.post(`${Constants.BASE_URL_REST}/api/v1/filtros-eventos`, payload, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
+  }
+
+  modificarFiltro(authToken, payload) {
+    return axios.put(`${Constants.BASE_URL_REST}/api/v1/filtros-eventos`, payload, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
+  }
+
+  eliminarFiltro(authToken, idFiltro) {
+    return axios.delete(`${Constants.BASE_URL_REST}/api/v1/filtros-eventos/${idFiltro}`, {
+      headers: {
+        Authorization: `Basic ${authToken}`,
+      },
+    });
+  }
 }
 
 export default new SolidarityEventService();

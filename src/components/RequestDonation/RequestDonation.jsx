@@ -243,8 +243,8 @@ export default function RequestDonation() {
       )}
       {isLoading && (
         <LoadingScreen
-            message={loadingScreen.message}
-            duration={loadingScreen.duration}
+          message={loadingScreen.message}
+          duration={loadingScreen.duration}
         />
       )}
     </div>
